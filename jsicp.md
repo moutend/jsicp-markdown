@@ -832,122 +832,109 @@ Lispがメインストリームの言語でないとしたら、なぜそれを�
 (より正確に言うと、あなたがタイプする式は、10進数の数値を表す数値からなります)。
 Lispに次の数値を入力すると、
 
+```scheme
 486
+```
 
 インタプリタは以下の内容を表示することで応答します。 [^5]
 
- *486* 
+```scheme
+486
+```
 
-数値を表す式は、基本的な手続きを表す式(例えば`+` や
-`*`)と組み合わせることで
-複合式を作り、数値に対し手続きを適用することを表します。 例えば:
+数値を表す式は、基本的な手続きを表す式(例えば`+` や`*`)と組み合わせることで複合式を作り、数値に対し手続きを適用することを表します。
+例えば:
 
-(+ 137 349)  *486* 
+```scheme
+(+ 137 349)
+486
+(- 1000 334)
+*666
+(* 5 99)
+495
+(/ 10 5)
+*2
+(+ 2.7 10)
+*12.7
+```
 
-(- 1000 334)  *666* 
+このような式は、括弧の中の式のリストを区切ることにより作られ、手続きの適用を意味するもので、(*combination*)と呼ばれます。リストの左端の要素は(*operator*)と呼ばれ、ほかの要素は(*operand*)と呼ばれます。
+組み合わせの値は、演算子によって指定された手続きを、被演算子の値である(*argument*)に適用することによって得られます。
 
-(\* 5 99)  *495* 
+演算子を被演算子の左に置くというやり方は、 (*prefix notation*)として知られているものですが、数学で慣例となっているやり方とは大幅に違うので、最初は混乱するかもしれません。しかし、前置記法にはいくつかの利点があります。その中のひとつは、任意の数の引数を取る手続きにも対応できるということです。例を以下に示します。
 
-(/ 10 5)  *2* 
+```scheme
+(+ 21 35 12 7)
+ *75* 
+(* 25 4 12)
+ *1200* 
+```
 
-(+ 2.7 10)  *12.7* 
+演算子はいつでも左端の要素で、組み合わせ全体は括弧で区切られているので、曖昧さの入り込む余地はありません。
 
-このような式は、括弧の中の式のリストを区切ることにより作られ、手続きの適用を意味するもので、
-(*combination*)と呼ばれます。リストの左端の要素は
-(*operator*)と呼ばれ、
-ほかの要素は(*operand*)と呼ばれます。
-組み合わせの値は、演算子によって指定された手続きを、被演算子の値である
-(*argument*)に適用することによって得られます。
+前置記法の二つ目の利点は、これを単純に拡張して、組み合わせを*ネスト*できる、つまり、組み合わせの要素がそれ自身組み合わせであるようなものが作れるということです。
 
-演算子を被演算子の左に置くというやり方は、 (*prefix
-notation*)として知られているものですが、数学で慣例となっている
-やり方とは大幅に違うので、最初は混乱するかもしれません。しかし、前置記法には
-いくつかの利点があります。その中のひとつは、任意の数の引数を取る手続きにも
-対応できるということです。例を以下に示します。
+(+ (* 3 5) (- 10 6))
+ *19* 
+```
 
-(+ 21 35 12 7)  *75* 
+このようなネストや、Lispインタプリタが評価できる式の全体としての複雑性には(原則的には)制限がありません。次のような、まだ比較的単純な式に出会った場合、混乱してしまうのは私たち人間のほうです。
 
-(\* 25 4 12)  *1200* 
+```scheme
+(+ (* 3 (+ (* 2 4) (+ 3 5))) (+ (- 10 7) 6))
+```
 
-演算子はいつでも左端の要素で、組み合わせ全体は括弧で区切られているので、
-曖昧さの入り込む余地はありません。
+インタプリタは、迷うことなく57だと評価するでしょう。このような式は、次のような形で書くことで、私たち自身にわかりやすいようにできます。
 
-前置記法の二つ目の利点は、これを単純に拡張して、組み合わせを*ネスト*できる、
-つまり、組み合わせの要素がそれ自身組み合わせであるようなものが作れるということです。
+```scheme
+(+ (* 3 (+ (* 2 4) (+ 3 5))) (+ (- 10 7) 6))
+```
 
-(+ (\* 3 5) (- 10 6))  *19* 
+(*pretty-printing*)として知られるフォーマットの慣習は、被演算子が垂直に揃うようにそれぞれの長い組み合わせを書くというものなのですが、上の式はそれに従って書いたものです。結果として、字下げが明確に式の構造を示すことになります。 [^6]
 
-このようなネストや、Lispインタプリタが評価できる式の全体としての複雑性には
-(原則的には)制限がありません。次のような、まだ比較的単純な式に出会った場合、
-混乱してしまうのは私たち人間のほうです。
-
-(+ (\* 3 (+ (\* 2 4) (+ 3 5))) (+ (- 10 7) 6))
-
-インタプリタは、迷うことなく57だと評価するでしょう。このような式は、
-次のような形で書くことで、私たち自身にわかりやすいようにできます。
-
-(+ (\* 3 (+ (\* 2 4) (+ 3 5))) (+ (- 10 7) 6))
-
-(*pretty-printing*)として知られる
-フォーマットの慣習は、被演算子が垂直に揃うようにそれぞれの長い組み合わせを
-書くというものなのですが、上の式はそれに従って書いたものです。
-結果として、字下げが明確に式の構造を示すことになります。 [^6]
-
-複雑な式でも、インタプリタはいつでも同じ基本的なサイクルで動作します。
-式を端末から読み、式を評価し、結果を表示するというものです。この操作モードは
-よく、インタプリタの(*read-eval-print loop*)モードと
-呼ばれます。特に、結果を表示することをインタプリタに明示的に指示しなくてもいいという
-ところに注意してください。 [^7]
+複雑な式でも、インタプリタはいつでも同じ基本的なサイクルで動作します。式を端末から読み、式を評価し、結果を表示するというものです。この操作モードはよく、インタプリタの(*read-eval-print loop*)モードと呼ばれます。特に、結果を表示することをインタプリタに明示的に指示しなくてもいいというところに注意してください。 [^7]
 
 ### 命名と環境 {#1.1.2節}
 
-プログラミング言語の重要な特徴のひとつは、コンピュータ上のオブジェクトを指すために
-名前を利用する手段を提供してくれるということです。
-このことを、(*value*)がそのオブジェクトである
-(*variable*)を名前によって特定すると言います。
+プログラミング言語の重要な特徴のひとつは、コンピュータ上のオブジェクトを指すために名前を利用する手段を提供してくれるということです。このことを、(*value*)がそのオブジェクトである(*variable*)を名前によって特定すると言います。
 
 LispのScheme方言では、`define`(定義)によって対象に名前をつけます。以下のように入力すると、
 
+```scheme
 (define size 2)
+```
 
-インタプリタは`size`という名前と2という値を関連づけます。
-[^8]
-`size`という名前が一度2という数値に関連づけられると、2という値を名前によって
-参照できます。
+インタプリタは`size`という名前と2という値を関連づけます。[^8]
+`size`という名前が一度2という数値に関連づけられると、2という値を名前によって参照できます。
 
-size  *2* 
-
-(\* 5 size)  *10* 
+```scheme
+size
+ *2* 
+(* 5 size)
+ *10* 
+```
 
 `define`の使い方をさらに見ていきましょう。
 
-(define pi 3.14159) (define radius 10) (\* pi (\* radius radius))
- *314.159*  (define circumference (\* 2 pi radius)) circumference
+```scheme
+(define pi 3.14159)
+(define radius 10)
+(* pi (* radius radius))
+ *314.159*
+(define circumference (* 2 pi radius))
+circumference
  *62.8318* 
+```
 
 `define`は、この言語の持つ抽象化方法のうち、最も単純なものです。
-これによって、上で計算した`circumference`(円周)のような複合演算の
-結果を簡単な名前で参照できます。一般的に、コンピュータ上の
-オブジェクトというものはとても複雑な構造を持っているので、使うたびに
-その細かいところを思い出して打ち直さないといけないとしたら、とんでもなく
-面倒なことになります。インタプリタでは、この名前とオブジェクトの関連づけを
-一連の対話を通して少しずつ作っていくことができるので、このような段階的な
-プログラムの構築に特に便利です。この特徴は、プログラムの開発・テストを
-少しずつ進めていくのに向いていて、Lispプログラムが一般的に大量の比較的単純な
-手続きから構成されるということの大きな理由となっています。
+これによって、上で計算した`circumference`(円周)のような複合演算の結果を簡単な名前で参照できます。一般的に、コンピュータ上のオブジェクトというものはとても複雑な構造を持っているので、使うたびにその細かいところを思い出して打ち直さないといけないとしたら、とんでもなく面倒なことになります。インタプリタでは、この名前とオブジェクトの関連づけを一連の対話を通して少しずつ作っていくことができるので、このような段階的なプログラムの構築に特に便利です。この特徴は、プログラムの開発・テストを少しずつ進めていくのに向いていて、Lispプログラムが一般的に大量の比較的単純な手続きから構成されるということの大きな理由となっています。
 
-当然のことですが、インタプリタが値と記号を関連づけ、後から取り出すことが
-できるということは、名前とオブジェクトのペアを記録しておくために何らかのメモリを
-持っておかないといけません。このメモリは(*environment*)と
-呼ばれます(より正確には、(*global environment*)です。
-後で学ぶように、演算には複数の異なる環境が使われることもあるからです)。
-[^9]
+当然のことですが、インタプリタが値と記号を関連づけ、後から取り出すことができるということは、名前とオブジェクトのペアを記録しておくために何らかのメモリを持っておかないといけません。このメモリは(*environment*)と呼ばれます(より正確には、(*global environment*)です。後で学ぶように、演算には複数の異なる環境が使われることもあるからです)。[^9]
 
 ### 組み合わせの評価 {#1.1.3節}
 
 この章の目標のひとつは、手続き的に考えるうえでの問題点を分解することです。
-とりあえず、組み合わせを評価するにあたって、インタプリタはそれ自身、手続きに
-従っているということを考えてみましょう。
+とりあえず、組み合わせを評価するにあたって、インタプリタはそれ自身、手続きに従っているということを考えてみましょう。
 
 > 組み合わせを評価するため、以下のことを行います。
 >
@@ -955,30 +942,21 @@ size  *2* 
 >
 > 2.  部分式の左端(演算子)の値となっている手続きを、引数(被演算子)、つまり
 >     部分式の残り値に適用する
->
-こんな単純な規則からも、手続き一般についてのいくつかの重要なポイントがわかります。
-一つ目のステップは、組み合わせに対する手続きを評価するには、組み合わせのそれぞれの
-要素に対する評価手続きを先にやらないといけないということを示しています。
-そのため、評価規則は本質的に(*recursive*)なものになります。
-これは、ステップのひとつとして、その規則自身を呼び出さないといけないということです。
-[^10]
 
-再帰という考えが、深くネストした複合式をどれだけ簡潔に表現できるかという
-ところに注目してください。再帰がなければ、かなり複雑な手続きになるところです。
+こんな単純な規則からも、手続き一般についてのいくつかの重要なポイントがわかります。
+一つ目のステップは、組み合わせに対する手続きを評価するには、組み合わせのそれぞれの要素に対する評価手続きを先にやらないといけないということを示しています。
+そのため、評価規則は本質的に(*recursive*)なものになります。
+これは、ステップのひとつとして、その規則自身を呼び出さないといけないということです。[^10]
+
+再帰という考えが、深くネストした複合式をどれだけ簡潔に表現できるかというところに注目してください。再帰がなければ、かなり複雑な手続きになるところです。
 例えば、次の式の評価する場合について考えます。
 
-(\* (+ 2 (\* 4 6)) (+ 3 5 7))
+```scheme
+(* (+ 2 (* 4 6)) (+ 3 5 7))
+```
 
 この式を評価するには、4つの異なる組み合わせに対して評価規則を適用する必要があります。
-この手続きは、のように組み合わせを木の形で表すことによって
-イメージできます。それぞれの組み合わせはノードとして表され、そこから組み合わせの
-演算子と被演算子に対応する枝が生えています。終端ノード(そこから生えている
-枝のないノード)は、演算子か数字を表しています。評価を木という形で見ることで、
-被演算子の値が終端ノードから始まってそれぞれのレベルで組み合わさりながら
-上に向かって伝わっていく様子がイメージできます。一般的に、階層的な木のような
-オブジェクトを扱うためには、再帰はとても強力なテクニックです。この
-“値を上に向かって伝える”という形の評価規則は、 (*tree
-accumulation*)として知られています。
+この手続きは@@@、のように組み合わせを木の形で表すことによってイメージできます。それぞれの組み合わせはノードとして表され、そこから組み合わせの演算子と被演算子に対応する枝が生えています。終端ノード(そこから生えている枝のないノード)は、演算子か数字を表しています。評価を木という形で見ることで、被演算子の値が終端ノードから始まってそれぞれのレベルで組み合わさりながら上に向かって伝わっていく様子がイメージできます。一般的に、階層的な木のようなオブジェクトを扱うためには、再帰はとても強力なテクニックです。この“値を上に向かって伝える”という形の評価規則は、 (*tree accumulation*)として知られています。
 
 \[図1.1\]
 
@@ -986,52 +964,29 @@ accumulation*)として知られています。
 
 **図1.1:** 部分組み合わせの値を示した木表現
 
-次に、一つ目のステップを繰り返して適用することで、ある点で評価する対象が、
-組み合わせではなく数値や組み込み演算子やその他の名前といった
-基本式になるというところに注目してください。このような基本的な場合については、
-以下のように規定することによって扱います。
+次に、一つ目のステップを繰り返して適用することで、ある点で評価する対象が、組み合わせではなく数値や組み込み演算子やその他の名前といった基本式になるというところに注目してください。このような基本的な場合については、以下のように規定することによって扱います。
 
 -   数字の値は、それが示す値である
-
 -   組み込み演算子の値は機械語の列で、それに対応する操作を実行する
-
 -   その他の名前の値は、現在の環境でその名前に関連づけられたオブジェクトである
 
 二つ目の規則は、三つ目の規則の特殊なケースと考えることができます。
-このことは、`+`と`*`といった記号もグローバル環境に含まれていて、
-一連の機械語命令がそれらの“値”として関係付けられていると
-規定することによって可能になります。ここでキーになるのは、式に出てくる記号の
-意味を決めるうえで環境の果たす役割です。Lispのような対話的な言語では、
-`(+ x 1)`という式の値について考えるのは、`x`という記号に意味を
-付与する環境についての情報がなければ意味がありません。`+`という
-記号に対しても、意味を付与するのは環境です。で学ぶように、
-評価を行う文脈を提供する存在としての環境という一般的概念は、プログラムの
-実行について理解するうえで重要な役割を果たしています。
+このことは、`+`と`*`といった記号もグローバル環境に含まれていて、一連の機械語命令がそれらの“値”として関係付けられていると規定することによって可能になります。ここでキーになるのは、式に出てくる記号の意味を決めるうえで環境の果たす役割です。Lispのような対話的な言語では、`(+ x 1)`という式の値について考えるのは、`x`という記号に意味を付与する環境についての情報がなければ意味がありません。`+`という記号に対しても、意味を付与するのは環境です。@@@で学ぶように、評価を行う文脈を提供する存在としての環境という一般的概念は、プログラムの実行について理解するうえで重要な役割を果たしています。
 
 上に書いた評価規則は、定義については扱っていないということに注意してください。
-例えば、`(define x 3)`を評価する際には、記号`x`の値と3という
-二つの引数に`define`を適用するということはしません。`define`の目的は、
-まさに記号`x`と値を関連づけるということだからです
+例えば、`(define x 3)`を評価する際には、記号`x`の値と3という二つの引数に`define`を適用するということはしません。`define`の目的は、まさに記号`x`と値を関連づけるということだからです
 (つまり、`(define x 3)`は複合式ではないということになります)。
 
-このような、一般的評価規則に対する例外は、(*special
-form*)と呼ばれます。
+このような、一般的評価規則に対する例外は、(*special form*)と呼ばれます。
 ここまでの範囲では、`define`は特殊形式の唯一の例ですが、ほかのものも
-もうすぐ見ていくことになります。それぞれの特殊形式は、固有の評価規則を
-持っています。それらのいろいろな種類の式(それぞれ関連づけられた評価規則を持つ)は、
-プログラミング言語の構文を構成します。ほかの多くのプログラミング言語と比べると、
-Lispはとても単純な構文を持っています。それは、式の評価規則はひとつの
-単純な一般規則と少数の特殊な形に対する特殊規則からなるということです。
-[^11]
+もうすぐ見ていくことになります。それぞれの特殊形式は、固有の評価規則を持っています。それらのいろいろな種類の式(それぞれ関連づけられた評価規則を持つ)は、プログラミング言語の構文を構成します。ほかの多くのプログラミング言語と比べると、Lispはとても単純な構文を持っています。それは、式の評価規則はひとつの単純な一般規則と少数の特殊な形に対する特殊規則からなるということです。[^11]
 
 ### 複合手続き {#1.1.4節}
 
 ここまでで、強力なプログラミング言語であれば必ず持っているようないくつかの要素について、それがLispにもあることを見てきました。
 
 -   数値は基本データで、算術演算は基本手続きである。
-
 -   組み合わせをネストすることで、演算を組み合わせることができる。
-
 -   定義は名前と値を関連づけ、抽象化のためにある程度役に立つ。
 
 ここでは、(*procedure definition*)について学びます。
@@ -1041,68 +996,72 @@ Lispはとても単純な構文を持っています。それは、式の評価�
 例えば、“何かを二乗するには、その何かにその何か自身をかける”のようになるでしょう。
 これは、私たちの言語では次のように表すことができます。
 
-(define (square x) (\* x x))
+```scheme
+(define (square x) (* x x))
+```
 
 これは、次のように理解できます。
 
-(define (square x) (\* x x)) | | | | | | 定義 二乗する xを かける xを
+```scheme
+(define (square x) (* x x)) | | | | | | 定義 二乗する xを かける xを
 xで.
+```
 
-ここでは、(*compound procedure*)を作り、
-それに`square`という名前をつけています。この手続きは、何かに
-それ自身をかけるという演算を表しています。かける数には`x`という名前を
-つけていますが、これは自然言語で代名詞が果たすのと同じ役割を果たしています。
-この定義を評価すると、この複合手続きを作成し、それを`square`という名前と
-関連づけています。 [^12]
+ここでは、(*compound procedure*)を作り、それに`square`という名前をつけています。この手続きは、何かにそれ自身をかけるという演算を表しています。かける数には`x`という名前をつけていますが、これは自然言語で代名詞が果たすのと同じ役割を果たしています。
+この定義を評価すると、この複合手続きを作成し、それを`square`という名前と関連づけています。 [^12]
 
 手続き定義の一般形式は以下の通りです。
 
-(define
-( $ {\color{SchemeDark}}\langle $  *名前*  $ {\color{SchemeDark}}\kern0.03em\rangle $ 
- $ {\color{SchemeDark}}\langle $  *仮引数*  $ {\color{SchemeDark}}\kern0.02em\rangle $ )
- $ {\color{SchemeDark}}\langle\kern0.08em $  *本体*  $ {\color{SchemeDark}}\rangle $ )
+```scheme
+(define (   *名前*       *仮引数*   )
+ $ {\color{SchemeDark}}\langle\kern0.08em $  *本体*   )
 
-$ \langle\hbox{\sl 名前}\kern0.08em\rangle $は、環境の中で手続きに関連づける
+は、環境の中で手続きに関連づける
 記号です。 [^13]
-$ \langle\hbox{\sl 仮引数}\kern0.08em\rangle $は、手続きの本体の中で
+は、手続きの本体の中で
 対応する引数を参照するために使う名前です。
-$ \langle\hbox{\sl 本体}\kern0.08em\rangle $は、その中に出てくる仮引数を
+は、その中に出てくる仮引数を
 その手続きが適用される実際の引数で置き換えた場合に、手続き適用後の値を
 返すような式です。 [^14]
-$ \langle $*名前*$ \kern0.08em\rangle $と
-$ \langle $*仮引数*$ \kern0.08em\rangle $は、定義する手続きを
-実際に呼び出すときと同じように、括弧でくくります。
+*名前*と*仮引数*は、定義する手続きを実際に呼び出すときと同じように、括弧でくくります。
 
 `square`を定義したので、もうそれを使うことができます。
 
-(square 21)  *441*  (square (+ 2 5))  *49*  (square (square 3))  *81* 
+```scheme
+(square 21)
+ *441*  (square (+ 2 5))  *49*  (square (square 3))  *81* 
+```
 
 `square`は、ほかの手続きを定義するための構成部品として使うこともできます。
 例えば、 $ x^2 + y^2 $は次のように表現できます。
 
+```scheme
 (+ (square x) (square y))
+```
 
-二つの数値が引数として与えられたときにその二乗の和を求める`sum/of/squares`
-という手続きも、簡単に定義できます。
+二つの数値が引数として与えられたときにその二乗の和を求める`sum/of/squares`という手続きも、簡単に定義できます。
 
-(define (sum-of-squares x y) (+ (square x) (square y))) (sum-of-squares
-3 4)  *25* 
+```scheme
+(define (sum-of-squares x y) (+ (square x) (square y)))
+(sum-of-squares 3 4)
+ *25* 
+```
 
 これで、`sum/of/squares`をさらに別の手続きの構成部品として使うこともできるようになります。
 
-(define (f a) (sum-of-squares (+ a 1) (\* a 2))) (f 5)  *136* 
+```scheme
+(define (f a) (sum-of-squares (+ a 1) (* a 2)))
+(f 5)
+ *136* 
+```
 
 複合手続きは、基本手続きとまったく同じように使うことができます。
-実際、上に書いた`sum/of/squares`の定義を見ても、
-`square`が`+`や`*`のような組み込み手続きなのか、
-複合手続きとして定義されたものなのか、見分けることはできないはずです。
+実際、上に書いた`sum/of/squares`の定義を見ても、`square`が`+`や`*`のような組み込み手続きなのか、複合手続きとして定義されたものなのか、見分けることはできないはずです。
 
 ### 手続き適用の置換モデル {#1.1.5節}
 
-演算子が複合手続きを指すような組み合わせをインタプリタが評価するとき、で
-説明したような、演算子が基本手続きを指す組み合わせを評価する場合とほぼ同じような手順をたどります。
-つまり、インタプリタは組み合わせの各要素を評価し、
-手続き(組合せの演算子の値)を引数(組合せの被演算子の値)に適用するということです。
+演算子が複合手続きを指すような組み合わせをインタプリタが評価するとき、@@@で説明したような、演算子が基本手続きを指す組み合わせを評価する場合とほぼ同じような手順をたどります。
+つまり、インタプリタは組み合わせの各要素を評価し、手続き(組合せの演算子の値)を引数(組合せの被演算子の値)に適用するということです。
 
 基本手続きを引数に適用する仕組みは、インタプリタに組み込まれていると考えることができます。
 複合手続きについては、その適用手順は次のようになります。
@@ -1111,16 +1070,20 @@ $ \langle $*仮引数*$ \kern0.08em\rangle $は、定義する手続きを
 
 この手順の例として、次の組み合わせを評価してみましょう。
 
+```scheme
 (f 5)
+```
 
-ここで、`f`はで定義した手続きです。
+ここで、`f`は@@@で定義した手続きです。
 まず、`f`の本体を取得することから始めます。
 
-(sum-of-squares (+ a 1) (\* a 2))
+```scheme
+(sum-of-squares (+ a 1) (* a 2))
+```
 
 次に、仮引数である`a`を、引数5で置き換えます。
 
-(sum-of-squares (+ 5 1) (\* 5 2))
+(sum-of-squares (+ 5 1) (* 5 2))
 
 これによって、問題は二つの被演算子と`sum/of/squares`という演算子の
 組み合わせの評価ということになります。
@@ -1135,7 +1098,7 @@ $ \langle $*仮引数*$ \kern0.08em\rangle $は、定義する手続きを
 
 `square`の定義を使うと、これは次の式になります。
 
-(+ (\* 6 6) (\* 10 10))
+(+ (* 6 6) (* 10 10))
 
 かけ算によって、次のようになります。
 
@@ -1177,12 +1140,12 @@ model*)
 まず被演算子の式を基本演算子しか出てこない式になるまで置き換えてから
 評価を行います。この方法を使うと、`(f 5)`の評価は次のような展開の連続によって進みます。
 
-(sum-of-squares (+ 5 1) (\* 5 2)) (+ (square (+ 5 1)) (square (\* 5 2))
-) (+ (\* (+ 5 1) (+ 5 1)) (\* (\* 5 2) (\* 5 2)))
+(sum-of-squares (+ 5 1) (* 5 2)) (+ (square (+ 5 1)) (square (* 5 2))
+) (+ (* (+ 5 1) (+ 5 1)) (* (* 5 2) (* 5 2)))
 
 それから、次のように簡約されます。
 
-(+ (\* 6 6) (\* 10 10)) (+ 36 100) 136
+(+ (* 6 6) (* 10 10)) (+ 36 100) 136
 
 この方法でも前の評価モデルと同じ値が得られますが、手順が違います。
 特に、こちらでは`(+ 5 1)`と`(* 5 2)`の評価がそれぞれ二回行われます。
@@ -1225,29 +1188,29 @@ $$|x| = \left\{ \begin{array}{r@{\quad \mathrm{if} \quad}l}
 
 条件式の一般形式は以下の通りです。
 
-(cond ( $ {\color{SchemeDark}}\langle{p_1}\kern0.08em\rangle $ 
- $ {\color{SchemeDark}}\langle{e_1}\kern0.08em\rangle $ )
-( $ {\color{SchemeDark}}\langle{p_2}\kern0.08em\rangle $ 
- $ {\color{SchemeDark}}\langle{e_2}\kern0.08em\rangle $ )  $ \dots $ 
-( $ {\color{SchemeDark}}\langle{p_n}\kern0.08em\rangle $ 
- $ {\color{SchemeDark}}\langle{e_n}\kern0.08em\rangle $ ))
+(cond (  
+  )
+(  
+  )  $ \dots $ 
+(  
+  ))
 
 これは、記号`cond`に続く、(*clause*)と呼ばれる括弧でくくった式の
 ペアの列によって構成されます。節の形式は次のようになります。
 
-( $ {\color{SchemeDark}}\langle{p}\kern0.08em\rangle $ 
- $ {\color{SchemeDark}}\langle{e}\kern0.08em\rangle $ )
+(  
+  )
 
 それぞれのペアの最初の式は、(*predicate*)—値が真か偽の
 どちらかとして解釈される式—です。 [^17]
 
-条件式は、次のように評価されます。まず、述語$ \langle{p_1}\kern0.08em\rangle $が評価されます。
-もしその値が偽なら、$ \langle{p_2}\kern0.08em\rangle $が評価されます。
-もし$ \langle{p_2}\kern0.08em\rangle $の値も偽なら、次は$ \langle{p_3}\kern0.08em\rangle $が
+条件式は、次のように評価されます。まず、述語が評価されます。
+もしその値が偽なら、が評価されます。
+もしの値も偽なら、次はが
 評価されます。この手順は、値が真である述語が見つかるまで続きます。見つかると、インタプリタは
 その節に対応する(*consequent expression*)
-$ \langle{e}\kern0.08em\rangle $の値を返します。
-$ \langle{p}\kern0.08em\rangle $がどれも真でない場合、`cond`の値は未定義となります。
+の値を返します。
+がどれも真でない場合、`cond`の値は未定義となります。
 
 (*predicate*)という単語は、真か偽のどちらかに評価される式だけでなく、
 真か偽のどちらかを返す手続きについても使われます。絶対値の手続き`abs`は、
@@ -1262,11 +1225,11 @@ $ \langle{p}\kern0.08em\rangle $がどれも真でない場合、`cond`の値は
 
 これは、日本語で言うと“もし$ x $がゼロより小さければ$ -x $を返す。
 そうでなければ$ x $を返す”となります。`else`は特殊な記号で、
-`cond`の最後の節の$ \langle{p}\kern0.08em\rangle $
+`cond`の最後の節の
 の代わりに使うことができます。これを使うと、それまでのすべての節がスキップされた
-ときに、これに対応する$ \langle{e}\kern0.08em\rangle $を`cond`の値として
+ときに、これに対応するを`cond`の値として
 返すようにできます。実は、値が常に真として評価される式であれば何でも、
-ここの$ \langle{p}\kern0.08em\rangle $として使うことができます。
+ここのとして使うことができます。
 
 さらに、絶対値の手続きは次のように書くこともできます。
 
@@ -1276,15 +1239,15 @@ $ \langle{p}\kern0.08em\rangle $がどれも真でない場合、`cond`の値は
 なる場合に使える、制約つきの条件式です。`if`式の一般形式は以下の通りです。
 
 (if
- $ {\color{SchemeDark}}\langle\kern0.07em $  *predicate*  $ {\color{SchemeDark}}\kern0.06em\rangle $ 
- $ {\color{SchemeDark}}\langle\kern0.07em $  *consequent*  $ {\color{SchemeDark}}\kern0.05em\rangle $ 
- $ {\color{SchemeDark}}\langle\kern0.06em $  *alternative*  $ {\color{SchemeDark}}\kern0.06em\rangle $ )
+ $ {\color{SchemeDark}}\langle\kern0.07em $  *predicate*   
+ $ {\color{SchemeDark}}\langle\kern0.07em $  *consequent*   
+ $ {\color{SchemeDark}}\langle\kern0.06em $  *alternative*   )
 
 `if`式を評価するにあたって、インタプリタは最初に
-式の$ \langle $*predicate*$ \kern0.08em\rangle $の部分を評価します。
-もし$ \langle $*predicate*$ \kern0.08em\rangle $の評価結果が真である場合、
-インタプリタは$ \langle $*consequent*$ \kern0.08em\rangle $を評価し、その値を返します。
-そうでなければ$ \langle $*alternative*$ \kern0.08em\rangle $を評価し、その値を返します。
+式の*predicate*の部分を評価します。
+もし*predicate*の評価結果が真である場合、
+インタプリタは*consequent*を評価し、その値を返します。
+そうでなければ*alternative*を評価し、その値を返します。
 [^19]
 
 `<`や`=`,
@@ -1294,24 +1257,24 @@ $ \langle{p}\kern0.08em\rangle $がどれも真でない場合、`cond`の値は
 
 -   $ \hbox{\tt(and }\langle{e_1}\rangle\;\;\dots\;\;\langle{e_n}\rangle\hbox{\tt)} $
 
-    インタプリタは式$ \langle{e}\kern0.08em\rangle $を左から右にひとつずつ評価します。
-    $ \langle{e}\kern0.08em\rangle $のどれかが偽と評価されると、
-    `and`式の値は偽となり、残りの$ \langle{e}\kern0.08em\rangle $は評価されません。
-    すべての$ \langle{e}\kern0.08em\rangle $が真と評価されると、`and`式の値は
+    インタプリタは式を左から右にひとつずつ評価します。
+    のどれかが偽と評価されると、
+    `and`式の値は偽となり、残りのは評価されません。
+    すべてのが真と評価されると、`and`式の値は
     最後の式の値になります。
 
 -   $ \hbox{\tt(or }\langle{e_1}\rangle\;\;\dots\;\;\langle{e_n}\rangle\hbox{\tt)} $
 
     インタプリタは式
-    $ \langle{e}\kern0.08em\rangle $を左から右にひとつずつ評価します。
-    $ \langle{e}\kern0.08em\rangle $のどれかが真と評価されると、その値が`or`式の
-    値として返され、残りの$ \langle{e}\kern0.08em\rangle $は評価されません。
-    すべての$ \langle{e}\kern0.08em\rangle $が偽と評価されると、`or`式の値は
+    を左から右にひとつずつ評価します。
+    のどれかが真と評価されると、その値が`or`式の
+    値として返され、残りのは評価されません。
+    すべてのが偽と評価されると、`or`式の値は
     偽となります。
 
 -   $ \hbox{\tt(not }\langle{e}\rangle\hbox{\tt)} $
 
-    `not`式の値は、式$ \langle{e}\kern0.08em\rangle $が偽と評価される場合は真になり、
+    `not`式の値は、式が偽と評価される場合は真になり、
     そうでなければ偽となります。
 
 `and`と`or`が特殊形式で、手続きではないということに注意してください。
@@ -1335,15 +1298,15 @@ $ \langle{p}\kern0.08em\rangle $がどれも真でない場合、`cond`の値は
 > 以下の一連の式について、それぞれの式に対するインタプリタの応答として
 > 表示される結果はどうなるか。式の列は、下記に示した順に評価されるとする。
 >
-> 10 (+ 5 3 4) (- 9 1) (/ 6 2) (+ (\* 2 4) (- 4 6)) (define a 3) (define
-> b (+ a 1)) (+ a b (\* a b)) (= a b) (if (and (&gt; b a) (&lt; b (\* a
+> 10 (+ 5 3 4) (- 9 1) (/ 6 2) (+ (* 2 4) (- 4 6)) (define a 3) (define
+> b (+ a 1)) (+ a b (* a b)) (= a b) (if (and (&gt; b a) (&lt; b (* a
 > b))) b a)
 >
 > (cond ((= a 4) 6) ((= b 4) (+ 6 7 a)) (else 25))
 >
 > (+ 2 (if (&gt; b a) b a))
 >
-> (\* (cond ((&gt; a b) a) ((&lt; a b) b) (else -1)) (+ a 1))
+> (* (cond ((&gt; a b) a) ((&lt; a b) b) (else -1)) (+ a 1))
 
 > **\[練習問題 1.2\]練習問題 1.2:**
 > 以下の式を前置記法に書き換えよ。
@@ -1555,7 +1518,7 @@ abstraction*)と
 べきです。どちらもひとつの数値を引数として取り、その数値の二乗を返り値として
 生成します。[^25]
 
-(define (square x) (\* x x)) (define (square x) (exp (double (log x))))
+(define (square x) (* x x)) (define (square x) (exp (double (log x))))
 (define (double x) (+ x x))
 
 ですから、手続き定義は詳細を隠せるようになっていなければなりません。手続きを使う人は
@@ -1569,7 +1532,7 @@ abstraction*)と
 手続きを実装した人が仮引数の名前に何を選んだかということがあります。
 そのため、次の二つの手続きは区別不可能であるべきです。
 
-(define (square x) (\* x x)) (define (square y) (\* y y))
+(define (square x) (* x x)) (define (square y) (* y y))
 
 この原則—手続きの意味はその作者が使った仮引数の名前とは独立であるべきということ—は、
 ちょっと見ると自明なことのように思えますが、その影響範囲は広範にわたります。最も単純な
@@ -1725,7 +1688,7 @@ $$n! = n \cdot [(n - 1) \cdot (n - 2) \cdots 3 \cdot 2 \cdot 1] = n \cdot (n - 1
 できるということになります。これに1!は1に等しいという規定を加えると、そのまま手続きに変換
 できます。
 
-(define (factorial n) (if (= n 1) 1 (\* n (factorial (- n 1)))))
+(define (factorial n) (if (= n 1) 1 (* n (factorial (- n 1)))))
 
 この手続きが6!の計算を実行する様子を観察するのに、の置換モデルを
 使うことができます。そうすると、のようになります。
@@ -1742,7 +1705,7 @@ $$n! = n \cdot [(n - 1) \cdot (n - 2) \cdots 3 \cdot 2 \cdot 1] = n \cdot (n - 1
 カウンタとの両方を保存するということです。計算については、次の規則に従って
 カウンタと積がステップごとに同時に変化するというように記述できます。
 
-product  $ {\color{SchemeDark}}\gets $  counter \* product counter
+product  $ {\color{SchemeDark}}\gets $  counter * product counter
  $ {\color{SchemeDark}}\gets $  counter + 1
 
 そして、$ n! $とはカウンタが$ n $を越えた時点での積の値であると規定します。
@@ -1756,7 +1719,7 @@ product  $ {\color{SchemeDark}}\gets $  counter \* product counter
 ここでまた、問題の記述を階乗計算の手続きとして書き直します。 [^29]
 
 (define (factorial n) (fact-iter 1 1 n)) (define (fact-iter product
-counter max-count) (if (&gt; counter max-count) product (fact-iter (\*
+counter max-count) (if (&gt; counter max-count) product (fact-iter (*
 counter product) (+ counter 1) max-count)))
 
 前回と同じく、6!の計算プロセスを視覚化するために置換モデルを使い、として示します。
@@ -1837,7 +1800,7 @@ iterative process*)と呼ばれます。
 > **\[練習問題 1.10\]練習問題 1.10:**
 > 次の手続きは、 アッカーマン関数と呼ばれる数学の関数を計算する。
 >
-> (define (A x y) (cond ((= y 0) 0) ((= x 0) (\* 2 y)) ((= y 1) 2) (else
+> (define (A x y) (cond ((= y 0) 0) ((= x 0) (* 2 y)) ((= y 1) 2) (else
 > (A (- x 1) (A x (- y 1))))))
 >
 > 以下の式の値は何になるか。
@@ -1847,7 +1810,7 @@ iterative process*)と呼ばれます。
 > `A`が上で定義された手続きであるとき、以下の手続きについて考えよ。
 >
 > (define (f n) (A 0 n)) (define (g n) (A 1 n)) (define (h n) (A 2 n))
-> (define (k n) (\* 5 n n))
+> (define (k n) (* 5 n n))
 >
 > 手続き`f`, `g`,
 > `h`によって、正の整数$ n $に対して計算される関数に
@@ -2084,7 +2047,7 @@ $ \Theta(n) $の(線形の)プロセスはで、問題の大きさを2倍にす�
 > (この練習問題では、角が“十分に小さい”とはその大きさが0.1ラジアン以下であることとする)
 > これらの考えは、以下の手続きに組み込まれている。
 >
-> (define (cube x) (\* x x x)) (define (p x) (- (\* 3 x) (\* 4 (cube
+> (define (cube x) (* x x x)) (define (p x) (- (* 3 x) (* 4 (cube
 > x)))) (define (sine angle) (if (not (&gt; (abs angle) 0.1)) angle (p
 > (sine (/ angle 3.0)))))
 >
@@ -2106,13 +2069,13 @@ $$\begin{array}{l@{{}={}}l}
 
 これは、すぐに次の手続きに変換できます。
 
-(define (expt b n) (if (= n 0) 1 (\* b (expt b (- n 1)))))
+(define (expt b n) (if (= n 0) 1 (* b (expt b (- n 1)))))
 
 これは線形再帰プロセスで、$ \Theta(n) $のステップ数と$ \Theta(n) $の空間を
 必要とします。階乗と同じように、等価な線形反復としてすぐに定式化できます。
 
 (define (expt b n) (expt-iter b n 1)) (define (expt-iter b counter
-product) (if (= counter 0) product (expt-iter b (- counter 1) (\* b
+product) (if (= counter 0) product (expt-iter b (- counter 1) (* b
 product))))
 
 こちらのバージョンは、$ \Theta(n) $のステップ数と$ \Theta(1) $の空間を必要とします。
@@ -2141,7 +2104,7 @@ $$\begin{array}{l@{{}={}}lr@{\ n\ }l}
 この方法は、手続きとして表現できます。
 
 (define (fast-expt b n) (cond ((= n 0) 1) ((even? n) (square (fast-expt
-b (/ n 2)))) (else (\* b (fast-expt b (- n 1))))))
+b (/ n 2)))) (else (* b (fast-expt b (- n 1))))))
 
 ここで、ある整数が偶数かどうかをテストする述語は、基本手続きの`remainder`
 (割り算の余り)を使って次のように定義します。
@@ -2180,7 +2143,7 @@ $ \Theta(\log n) $での増加と$ \Theta(n) $での増加の違いは、$ n $�
 > 実行することもできる。次のかけ算手続き(私たちの言語では足し算しかできず、
 > かけ算ができないと仮定して)は`expt`手続きと同じような仕組みになっている。
 >
-> (define (\* a b) (if (= b 0) 0 (+ a (\* a (- b 1)))))
+> (define (* a b) (if (= b 0) 0 (+ a (* a (- b 1)))))
 >
 > このアルゴリズムは、`b`に対して線形のステップ数を取る。ここで、足し算のほかに、
 > 整数を倍にする`double`という演算と、(偶数の)整数を2で割る`halve`という
@@ -2216,11 +2179,11 @@ $ \Theta(\log n) $での増加と$ \Theta(n) $での増加の違いは、$ n $�
 >
 > (define (fib n) (fib-iter 1 0 0 1 n)) (define (fib-iter a b p q count)
 > (cond ((= count 0) b) ((even? count) (fib-iter a b
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
+>   ??  
 >   
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
->    (/ count 2))) (else (fib-iter (+ (\* b q) (\* a q) (\* a p)) (+ (\*
-> b p) (\* a q)) p q (- count 1)))))
+>   ??  
+>    (/ count 2))) (else (fib-iter (+ (* b q) (* a q) (* a p)) (+ (*
+> b p) (* a q)) p q (- count 1)))))
 
 ### 最大公約数 {#1.2.5節}
 
@@ -2341,7 +2304,7 @@ $ n $が与えられたとき、 $ a < n $ である適当な数値 $ a $
 手続きが必要です。
 
 (define (expmod base exp m) (cond ((= exp 0) 1) ((even? exp) (remainder
-(square (expmod base (/ exp 2) m)) m)) (else (remainder (\* base (expmod
+(square (expmod base (/ exp 2) m)) m)) (else (remainder (* base (expmod
 base (- exp 1) m)) m))))
 
 これは、の`fast/expt`手続きにそっくりです。二乗の連続を使っている
@@ -2414,7 +2377,7 @@ $ a $
 > (define (timed-prime-test n) (newline) (display n) (start-prime-test n
 > (runtime))) (define (start-prime-test n start-time) (if (prime? n)
 > (report-prime (- (runtime) start-time)))) (define (report-prime
-> elapsed-time) (display “ \*\*\* ”) (display elapsed-time))
+> elapsed-time) (display “ *** ”) (display elapsed-time))
 >
 > この手続きを使って、指定した範囲の連続した奇数について素数判定を行う手続き
 > `search/for/primes`を書け。その手続きを使って、1000,
@@ -2469,8 +2432,8 @@ $ a $
 > わかった。
 >
 > (define (expmod base exp m) (cond ((= exp 0) 1) ((even? exp)
-> (remainder (\* (expmod base (/ exp 2) m) (expmod base (/ exp 2) m))
-> m)) (else (remainder (\* base (expmod base (- exp 1) m)) m))))
+> (remainder (* (expmod base (/ exp 2) m) (expmod base (/ exp 2) m))
+> m)) (else (remainder (* base (expmod base (- exp 1) m)) m))))
 >
 > Louisは、「何も違わないように見えるけど」と言っている。Evaは、
 > 「いや、違うって。手続きの書き方のせいで、$ \Theta(\log n) $の
@@ -2510,12 +2473,12 @@ $ a $
 ここまでで、手続きは事実上、数値に対する複合演算を特定の数値から独立した形で
 記述する抽象化であることを見てきました。例えば、次の手続きを見てみましょう。
 
-(define (cube x) (\* x x x))
+(define (cube x) (* x x x))
 
 ここで扱っているのは、特定の値の三乗ではなく、任意の数値の三乗を得るやり方です。
 もちろん、この手続きを定義しないでも、毎回次のような式を書くこともできます。
 
-(\* 3 3 3) (\* x x x) (\* y y y)
+(* 3 3 3) (* x x x) (* y y y)
 
 こうすると、明示的に`cube`について書く必要はありません。しかし、このやり方では
 とても不利なことになります。たまたま言語が基本演算として持っていた特定の演算
@@ -2554,7 +2517,7 @@ $${1\over1\cdot 3} +  {1\over5\cdot 7} + {1\over9\cdot 11} + \dots,$$
 
 これは、$ \pi / 8 $に(非常にゆっくり)収束します。[^49]
 
-(define (pi-sum a b) (if (&gt; a b) 0 (+ (/ 1.0 (\* a (+ a 2))) (pi-sum
+(define (pi-sum a b) (if (&gt; a b) 0 (+ (/ 1.0 (* a (+ a 2))) (pi-sum
 (+ a 4) b))))
 
 これらの三つの手続きの背後には、明らかに共通のパターンがあります。それらはほとんどの部分が
@@ -2563,12 +2526,12 @@ $${1\over1\cdot 3} +  {1\over5\cdot 7} + {1\over9\cdot 11} + \dots,$$
 生成できそうです。
 
 (define
-( $ {\color{SchemeDark}}\langle $  *name*  $ {\color{SchemeDark}}\rangle $ 
+(   *name*   
 a b) (if (&gt; a b) 0 (+
-( $ {\color{SchemeDark}}\langle $  *term*  $ {\color{SchemeDark}}\rangle $ 
+(   *term*   
 a)
-( $ {\color{SchemeDark}}\langle $  *name*  $ {\color{SchemeDark}}\rangle $ 
-( $ {\color{SchemeDark}}\langle $  *next*  $ {\color{SchemeDark}}\rangle $ 
+(   *name*   
+(   *next*   
 a) b))))
 
 こういった共通パターンがあるということは、便利な抽象化が潜んでいて、見つけ出されるのを
@@ -2614,12 +2577,12 @@ b))
 
 `pi/sum`も、同じようにして定義できます。 [^50]
 
-(define (pi-sum a b) (define (pi-term x) (/ 1.0 (\* x (+ x 2)))) (define
+(define (pi-sum a b) (define (pi-term x) (/ 1.0 (* x (+ x 2)))) (define
 (pi-next x) (+ x 4)) (sum pi-term a pi-next b))
 
 これらの手続きを使うと、$ \pi $の近似値が計算できます。
 
-(\* 8 (pi-sum 1 1000))  *3.139592655589783* 
+(* 8 (pi-sum 1 1000))  *3.139592655589783* 
 
 `sum`を手に入れたことで、それを構築用ブロックとして使って、また別の概念を定式化
 できます。例えば、関数$ f $の範囲$ a $から$ b $の定積分は、小さな
@@ -2631,7 +2594,7 @@ $${\int_a^b \!\!\! f} = {\left[\;f\! \left(a + {dx \over 2}\right)
 
 これは、手続きとしてそのまま表現できます。
 
-(define (integral f a b dx) (define (add-dx x) (+ x dx)) (\* (sum f (+ a
+(define (integral f a b dx) (define (add-dx x) (+ x dx)) (* (sum f (+ a
 (/ dx 2.0)) add-dx b) dx))
 
 (integral cube 0 1 0.01)  *.24998750000000042* 
@@ -2660,14 +2623,14 @@ $${\int_a^b \!\!\! f} = {\left[\;f\! \left(a + {dx \over 2}\right)
 > 次の定義の中で欠けている式を埋め、そのやり方を示せ。
 >
 > (define (sum term a next b) (define (iter a result) (if
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
+>   ??  
+>   ??  
 > (iter
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ )))
+>   ??  
+>   ??  )))
 > (iter
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ ))
+>   ??  
+>   ??  ))
 
 > **\[練習問題 1.31\]練習問題 1.31:**
 >
@@ -2727,26 +2690,26 @@ $${\int_a^b \!\!\! f} = {\left[\;f\! \left(a + {dx \over 2}\right)
 
 (lambda (x) (+ x 4))
 
-(lambda (x) (/ 1.0 (\* x (+ x 2))))
+(lambda (x) (/ 1.0 (* x (+ x 2))))
 
 こうすると、`pi/sum`手続きは次のように補助手続きをまったく定義しないで
 表現できます。
 
-(define (pi-sum a b) (sum (lambda (x) (/ 1.0 (\* x (+ x 2)))) a (lambda
+(define (pi-sum a b) (sum (lambda (x) (/ 1.0 (* x (+ x 2)))) a (lambda
 (x) (+ x 4)) b))
 
 同様に、`lambda`を使うことで、`integral`手続きも補助手続き`add/dx`を
 定義しないで書けます。
 
-(define (integral f a b dx) (\* (sum f (+ a (/ dx 2.0)) (lambda (x) (+ x
+(define (integral f a b dx) (* (sum f (+ a (/ dx 2.0)) (lambda (x) (+ x
 dx)) b) dx))
 
 一般的に、`lambda`は`define`同様、手続きを作るために使われますが、
 その手続きに名前を指定しないという点が違います。
 
 (lambda
-( $ {\color{SchemeDark}}\langle $  *formal-parameters*  $ {\color{SchemeDark}}\rangle $ )
- $ {\color{SchemeDark}}\langle $  *body*  $ {\color{SchemeDark}}\rangle $ )
+(   *formal-parameters*   )
+   *body*   )
 
 作られる手続きは、`define`によって作られるものと同じく、普通の手続きです。
 唯一の違いは、環境の中で名前と関連づけられていないということだけです。
@@ -2790,49 +2753,49 @@ $ f $を計算する手続きを書く際には、$ x $と$ y $だけでなく�
 いった計算過程の値の名前も局所変数として持っておきたいところです。これを
 実現するひとつの方法は、局所変数を束縛するために補助手続きを使うというものです。
 
-(define (f x y) (define (f-helper a b) (+ (\* x (square a)) (\* y b) (\*
-a b))) (f-helper (+ 1 (\* x y)) (- 1 y)))
+(define (f x y) (define (f-helper a b) (+ (* x (square a)) (* y b) (*
+a b))) (f-helper (+ 1 (* x y)) (- 1 y)))
 
 もちろん、`lambda`式を使って、局所変数を束縛するための無名手続きを指定する
 こともできます。そうすると、`f`の本体はその手続きの呼び出しひとつだけになります。
 
-(define (f x y) ((lambda (a b) (+ (\* x (square a)) (\* y b) (\* a b)))
-(+ 1 (\* x y)) (- 1 y)))
+(define (f x y) ((lambda (a b) (+ (* x (square a)) (* y b) (* a b)))
+(+ 1 (* x y)) (- 1 y)))
 
 この概念は便利なので、`let`という特殊形式でさらに手軽に使えるようになっています。
 `let`を使うと、手続き`f`は次のように書けます。
 
-(define (f x y) (let ((a (+ 1 (\* x y))) (b (- 1 y))) (+ (\* x (square
-a)) (\* y b) (\* a b))))
+(define (f x y) (let ((a (+ 1 (* x y))) (b (- 1 y))) (+ (* x (square
+a)) (* y b) (* a b))))
 
 `let`式の一般形式は次のようになります。
 
 (let
-(( $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}var_1 $  $ {\color{SchemeDark}}\rangle $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}exp_1 $  $ {\color{SchemeDark}}\rangle $ )
-( $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}var_2 $  $ {\color{SchemeDark}}\rangle $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}exp_2 $  $ {\color{SchemeDark}}\rangle $ )
+((   $ {\color{SchemeDark}}var_1 $   
+   $ {\color{SchemeDark}}exp_1 $   )
+(   $ {\color{SchemeDark}}var_2 $   
+   $ {\color{SchemeDark}}exp_2 $   )
  $ \dots $ 
-( $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}var_n $  $ {\color{SchemeDark}}\rangle $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}exp_n $  $ {\color{SchemeDark}}\rangle $ ))
- $ {\color{SchemeDark}}\langle $  *body*  $ {\color{SchemeDark}}\rangle $ )
+(   $ {\color{SchemeDark}}var_n $   
+   $ {\color{SchemeDark}}exp_n $   ))
+   *body*   )
 
 これは、次のように考えることができます。
 
 let
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}var_1 $  $ {\color{SchemeDark}}\rangle $ 
+   $ {\color{SchemeDark}}var_1 $   
 have the value
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}exp_1 $  $ {\color{SchemeDark}}\rangle $ 
+   $ {\color{SchemeDark}}exp_1 $   
 and
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}var_2 $  $ {\color{SchemeDark}}\rangle $ 
+   $ {\color{SchemeDark}}var_2 $   
 have the value
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}exp_2 $  $ {\color{SchemeDark}}\rangle $ 
+   $ {\color{SchemeDark}}exp_2 $   
 and  $ \dots $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}var_n $  $ {\color{SchemeDark}}\rangle $ 
+   $ {\color{SchemeDark}}var_n $   
 have the value
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}exp_n $  $ {\color{SchemeDark}}\rangle $ 
+   $ {\color{SchemeDark}}exp_n $   
 in
- $ {\color{SchemeDark}}\langle $  *body*  $ {\color{SchemeDark}}\rangle $ 
+   *body*   
 
 `let`式の最初の部分は、名前・式というペアのリストです。`let`が評価されるとき、
 それぞれの名前は対応する式の値と関連づけられます。`let`の本体は、これらの名前が
@@ -2840,13 +2803,13 @@ in
 別の文法として評価されているということです。
 
 ((lambda
-( $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}var_1 $  $ {\color{SchemeDark}}\rangle $ 
+(   $ {\color{SchemeDark}}var_1 $   
  $ \dots $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}var_n $  $ {\color{SchemeDark}}\rangle $ )
- $ {\color{SchemeDark}}\langle $  *body*  $ {\color{SchemeDark}}\rangle $ )
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}exp_1 $  $ {\color{SchemeDark}}\rangle $ 
+   $ {\color{SchemeDark}}var_n $   )
+   *body*   )
+   $ {\color{SchemeDark}}exp_1 $   
  $ \dots $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}exp_n $  $ {\color{SchemeDark}}\rangle $ )
+   $ {\color{SchemeDark}}exp_n $   )
 
 局所変数を提供するのに、インタプリタの新しい仕組みは必要ありません。`let`式は、
 その裏にある`lambda`適用に対するシンタックスシュガーにすぎません。
@@ -2857,7 +2820,7 @@ in
 -   `let`を使うと、変数を可能な限り局所的に使用箇所に束縛できます。
     例えば、もし`x`の値が5であれば、次の式の値は38になります。
 
-    (+ (let ((x 3)) (+ x (\* x 10))) x)
+    (+ (let ((x 3)) (+ x (* x 10))) x)
 
     ここで、`let`の本体の中では`x`は3なので`let`式の値は33になります。
     それに対して、一番外側の`+`の第二引数である`x`は5のままです。
@@ -2866,7 +2829,7 @@ in
     局所変数自身と同じ名前を持った変数に依存している場合には、このことが
     関係してきます。例えば、`x`の値が2であれば、次の式の値は12になります。
 
-    (let ((x 3) (y (+ x 2))) (\* x y))
+    (let ((x 3) (y (+ x 2))) (* x y))
 
     これは、`let`の本体の中では`x`は3になり、`y`は4(つまり、外側の`x`に
     2を足したもの)になっているからです。
@@ -2874,8 +2837,8 @@ in
 `let`と同じ結果を得るために、内部定義が使える場合もあります。例えば、上の手続き
 `f`は次のように定義することもできるところです。
 
-(define (f x y) (define a (+ 1 (\* x y))) (define b (- 1 y)) (+ (\* x
-(square a)) (\* y b) (\* a b)))
+(define (f x y) (define a (+ 1 (* x y))) (define b (- 1 y)) (+ (* x
+(square a)) (* y b) (* a b)))
 
 しかし、私たちはこのような状況では`let`を使い、`define`は内部手続きの定義に
 限定して使うようにしています。 [^54]
@@ -2887,7 +2850,7 @@ in
 >
 > すると、次のような結果になる。
 >
-> (f square)  *4*  (f (lambda (z) (\* z (+ z 1))))  *6* 
+> (f square)  *4*  (f (lambda (z) (* z (+ z 1))))  *6* 
 >
 > もしここで、インタプリタに`(f f)`という組み合わせを評価させるという(ひねくれた)
 > ことをすると、どのような結果が起こるだろうか。
@@ -2956,7 +2919,7 @@ b)) ((and (negative? b-value) (positive? a-value)) (search f b a)) (else
 もうひとつ例を挙げます。区間二分法を使って方程式$ x^3 - 2x - 3 = 0 $の
 1から2の間の根を探すというものです。
 
-(half-interval-method (lambda (x) (- (\* x x x) (\* 2 x) 3)) 1.0 2.0)
+(half-interval-method (lambda (x) (- (* x x x) (* 2 x) 3)) 1.0 2.0)
  *1.89306640625* 
 
 #### 関数の不動点を求める {#関数の不動点を求める .unnumbered}
@@ -3176,7 +3139,7 @@ $${Dg(x)} = {g(x + {\it dx}) - g(x) \over {\it dx}}\,.$$
 手続きです。例えば、$ x \mapsto x^3 $を微分したものの$ x = 5 $での値(正確な値は75です)
 の近似値を求めるには、次の式を評価します。
 
-(define (cube x) (\* x x x)) ((deriv cube) 5)  *75.00014999664018* 
+(define (cube x) (* x x x)) ((deriv cube) 5)  *75.00014999664018* 
 
 `deriv`の助けを借りると、ニュートン法は不動点探索プロセスとして表現できます。
 
@@ -3400,7 +3363,7 @@ $ y $を引数として取り、$ ax + by $の値を返す手続きを
 書くとします。引数が数値であれば、何も難しいことはありません。すぐに次のような手続きを
 定義できます。
 
-(define (linear-combination a b x y) (+ (\* a x) (\* b y)))
+(define (linear-combination a b x y) (+ (* a x) (* b y)))
 
 しかし、扱いたいものが数値だけでないとするとどうでしょう。加算と乗算さえ
 定義されていれば、有理数でも複素数でも多項式でも何でも線形結合が作れるという
@@ -3513,11 +3476,11 @@ abstraction*)と呼ばれます。データ抽象化は、複合データオブ�
 また、有理数が与えられたときに、その分子と分母を抽出(セレクト)する方法も
 あるとします。さらに、コンストラクタとセレクタは手続きとして使うことができるとします。
 
--   $ \hbox{\tt(make-rat}\;\langle{n}\kern0.08em\rangle\;\langle{d}\kern0.06em\rangle\hbox{\tt)} $は、分子が整数$ \langle{n}\kern0.08em\rangle $で分母が整数$ \langle{d}\kern0.06em\rangle $である有理数を返す。
+-   $ \hbox{\tt(make-rat}\;\langle{n}\kern0.08em\rangle\;\langle{d}\kern0.06em\rangle\hbox{\tt)} $は、分子が整数で分母が整数である有理数を返す。
 
--   $ \hbox{\tt(numer}\;\;\langle{x}\kern0.08em\rangle\hbox{\tt)} $は、有理数$ \langle{x}\kern0.08em\rangle $の分子を返す。
+-   $ \hbox{\tt(numer}\;\;\langle{x}\kern0.08em\rangle\hbox{\tt)} $は、有理数の分子を返す。
 
--   $ \hbox{\tt(denom}\;\;\langle{x}\kern0.08em\rangle\hbox{\tt)} $は、有理数$ \langle{x}\kern0.08em\rangle $の分母を返す。
+-   $ \hbox{\tt(denom}\;\;\langle{x}\kern0.08em\rangle\hbox{\tt)} $は、有理数の分母を返す。
 
 ここでは、プログラムを合成していくうえでの強力な戦略である
 (*wishful thinking*)を使っています。
@@ -3538,14 +3501,14 @@ $$\begin{aligned}
 
 これらの規則は手続きとして表現できます。
 
-(define (add-rat x y) (make-rat (+ (\* (numer x) (denom y)) (\* (numer
-y) (denom x))) (\* (denom x) (denom y)))) (define (sub-rat x y)
-(make-rat (- (\* (numer x) (denom y)) (\* (numer y) (denom x))) (\*
-(denom x) (denom y)))) (define (mul-rat x y) (make-rat (\* (numer x)
-(numer y)) (\* (denom x) (denom y)))) (define (div-rat x y) (make-rat
-(\* (numer x) (denom y)) (\* (denom x) (numer y))))
+(define (add-rat x y) (make-rat (+ (* (numer x) (denom y)) (* (numer
+y) (denom x))) (* (denom x) (denom y)))) (define (sub-rat x y)
+(make-rat (- (* (numer x) (denom y)) (* (numer y) (denom x))) (*
+(denom x) (denom y)))) (define (mul-rat x y) (make-rat (* (numer x)
+(numer y)) (* (denom x) (denom y)))) (define (div-rat x y) (make-rat
+(* (numer x) (denom y)) (* (denom x) (numer y))))
 
-(define (equal-rat? x y) (= (\* (numer x) (denom y)) (\* (numer y)
+(define (equal-rat? x y) (= (* (numer x) (denom y)) (* (numer y)
 (denom x))))
 
 これで、有理数の演算が`numer`, `denom`,
@@ -3870,9 +3833,9 @@ Alyssaは、下限と上限という二つの端点を持つ“区間”とい�
 下限と上限とすることによって、二つの区間の積を計算しました
 (`min`と`max`は、任意の数の引数の最小値と最大値を見つける基本要素です)。
 
-(define (mul-interval x y) (let ((p1 (\* (lower-bound x) (lower-bound
-y))) (p2 (\* (lower-bound x) (upper-bound y))) (p3 (\* (upper-bound x)
-(lower-bound y))) (p4 (\* (upper-bound x) (upper-bound y))))
+(define (mul-interval x y) (let ((p1 (* (lower-bound x) (lower-bound
+y))) (p2 (* (lower-bound x) (upper-bound y))) (p3 (* (upper-bound x)
+(lower-bound y))) (p4 (* (upper-bound x) (upper-bound y))))
 (make-interval (min p1 p2 p3 p4) (max p1 p2 p3 p4))))
 
 二つの区間の割り算は、一つ目に二つ目の逆数をかけることにします。区間の逆数の
@@ -4060,19 +4023,19 @@ property*)と呼びます。一般的に、データオブジェクトを組み�
 上の列は、`(list 1 2 3 4)`によって生成できます。 一般的に、
 
 (list
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}a_1 $  $ {\color{SchemeDark}}\rangle $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}a_2 $  $ {\color{SchemeDark}}\rangle $ 
+   $ {\color{SchemeDark}}a_1 $   
+   $ {\color{SchemeDark}}a_2 $   
  $ \dots $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}a_n $  $ {\color{SchemeDark}}\rangle $ )
+   $ {\color{SchemeDark}}a_n $   )
 
 は次のものと等価です。
 
 (cons
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}a_1 $  $ {\color{SchemeDark}}\rangle $ 
+   $ {\color{SchemeDark}}a_1 $   
 (cons
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}a_2 $  $ {\color{SchemeDark}}\rangle $ 
+   $ {\color{SchemeDark}}a_2 $   
 (cons  $ \dots $  (cons
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}a_n $  $ {\color{SchemeDark}}\rangle $ 
+   $ {\color{SchemeDark}}a_n $   
 nil) $ \dots $ )))
 
 Lispシステムは、慣例的にリストを括弧でくくられた要素の列として表示します。
@@ -4216,7 +4179,7 @@ Schemeは基本述語`null?`を持っています。これは、引数が空リ�
 > 例えば、次のような定義の場合、
 >
 > (define (f x y . z)
->  $ {\color{SchemeDark}}\langle $  *body*  $ {\color{SchemeDark}}\rangle $ )
+>    *body*   )
 >
 > 手続き`f`は、二つ以上の引数で呼び出すことができる。次のものを評価すると、
 >
@@ -4226,7 +4189,7 @@ Schemeは基本述語`null?`を持っています。これは、引数が空リ�
 > 次の定義の場合、
 >
 > (define (g . w)
->  $ {\color{SchemeDark}}\langle $  *body*  $ {\color{SchemeDark}}\rangle $ )
+>    *body*   )
 >
 > 手続き`g`は0個以上の引数で呼び出すことができる。次のものを評価すると、
 >
@@ -4249,7 +4212,7 @@ Schemeは基本述語`null?`を持っています。これは、引数が空リ�
 返すというものがあります。例えば、次の手続きは与えられた係数をリストのそれぞれの数値に
 かけます。
 
-(define (scale-list items factor) (if (null? items) nil (cons (\* (car
+(define (scale-list items factor) (if (null? items) nil (cons (* (car
 items) factor) (scale-list (cdr items) factor)))) (scale-list (list 1 2
 3 4 5) 10)  *(10 20 30 40 50)* 
 
@@ -4260,11 +4223,11 @@ items) factor) (scale-list (cdr items) factor)))) (scale-list (list 1 2
 
 (define (map proc items) (if (null? items) nil (cons (proc (car items))
 (map proc (cdr items))))) (map abs (list -10 2.5 -11.6 17))  *(10 2.5
-11.6 17)*  (map (lambda (x) (\* x x)) (list 1 2 3 4))  *(1 4 9 16)* 
+11.6 17)*  (map (lambda (x) (* x x)) (list 1 2 3 4))  *(1 4 9 16)* 
 
 これで、`map`を使って`scale/list`の新しい定義を書くことができます。
 
-(define (scale-list items factor) (map (lambda (x) (\* x factor))
+(define (scale-list items factor) (map (lambda (x) (* x factor))
 items))
 
 `map`は重要な概念ですが、それは`map`が共通パターンを捉えているという理由から
@@ -4291,11 +4254,11 @@ items))
 > 次に二つの異なる`square/list`の定義を示す。書けた部分を埋め、二つとも完成させよ。
 >
 > (define (square-list items) (if (null? items) nil (cons
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ )))
+>   ??  
+>   ??  )))
 > (define (square-list items) (map
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ ))
+>   ??  
+>   ??  ))
 
 > **\[練習問題 2.22\]練習問題 2.22:** Louis
 > Reasonerはの一つ目の`square/list`手続きを書き直し、
@@ -4473,7 +4436,7 @@ x)  *4*  (list x x)  *(((1 2) 3 4) ((1 2) 3 4))*  (length (list x x))
 `scale/tree`の再帰計画は、`count/leaves`のものに似ています。
 
 (define (scale-tree tree factor) (cond ((null? tree) nil) ((not (pair?
-tree)) (\* tree factor)) (else (cons (scale-tree (car tree) factor)
+tree)) (* tree factor)) (else (cons (scale-tree (car tree) factor)
 (scale-tree (cdr tree) factor))))) (scale-tree (list 1 (list 2 (list 3
 4) 5) (list 6 7)) 10)  *(10 (20 (30 40) 50) (60 70))* 
 
@@ -4483,7 +4446,7 @@ tree)) (\* tree factor)) (else (cons (scale-tree (car tree) factor)
 単純に係数倍します。
 
 (define (scale-tree tree factor) (map (lambda (sub-tree) (if (pair?
-sub-tree) (scale-tree sub-tree factor) (\* sub-tree factor))) tree))
+sub-tree) (scale-tree sub-tree factor) (* sub-tree factor))) tree))
 
 木の操作の多くは、列の操作と再帰を組み合わせて同じように実装できます。
 
@@ -4513,7 +4476,7 @@ sub-tree) (scale-tree sub-tree factor) (\* sub-tree factor))) tree))
 >
 > (define (subsets s) (if (null? s) (list nil) (let ((rest (subsets (cdr
 > s)))) (append rest (map
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
+>   ??  
 > rest)))))
 
 ### 標準インターフェイスとしての列 {#2.2.3節}
@@ -4621,7 +4584,7 @@ sequence)))) (else (filter predicate (cdr sequence)))))
 
 (define (accumulate op initial sequence) (if (null? sequence) initial
 (op (car sequence) (accumulate op initial (cdr sequence))))) (accumulate
-+ 0 (list 1 2 3 4 5))  *15*  (accumulate \* 1 (list 1 2 3 4 5))  *120* 
++ 0 (list 1 2 3 4 5))  *15*  (accumulate * 1 (list 1 2 3 4 5))  *120* 
 (accumulate cons nil (list 1 2 3 4 5))  *(1 2 3 4 5)* 
 
 後は、信号の流れ図を実装するのに足りないものは、処理する要素の列を列挙する
@@ -4677,7 +4640,7 @@ tree)) (list tree)) (else (append (enumerate-tree (car tree))
 部品を配置し直して、整数列の中の奇数のものの二乗の積を計算するために
 使うこともできます。
 
-(define (product-of-squares-of-odd-elements sequence) (accumulate \* 1
+(define (product-of-squares-of-odd-elements sequence) (accumulate * 1
 (map square (filter odd? sequence))))
 (product-of-squares-of-odd-elements (list 1 2 3 4 5))  *225* 
 
@@ -4705,12 +4668,12 @@ tree)) (list tree)) (else (append (enumerate-tree (car tree))
 > 欠けている式を埋めて、完成させよ。
 >
 > (define (map p sequence) (accumulate (lambda (x y)
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ )
+>   ??  )
 > nil sequence)) (define (append seq1 seq2) (accumulate cons
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ ))
+>   ??  
+>   ??  ))
 > (define (length sequence) (accumulate
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $  0
+>   ??   0
 > sequence))
 
 > **\[練習問題 2.34\]練習問題 2.34:**
@@ -4732,7 +4695,7 @@ tree)) (list tree)) (else (append (enumerate-tree (car tree))
 >
 > (define (horner-eval x coefficient-sequence) (accumulate (lambda
 > (this-coeff higher-terms)
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ )
+>   ??  )
 > 0 coefficient-sequence))
 >
 > 例えば、$ x = 2 $のときの$ 1 + 3x + 5x^3 + x^5 $を計算するには、次を評価する。
@@ -4743,11 +4706,11 @@ tree)) (list tree)) (else (append (enumerate-tree (car tree))
 > の`count/leaves`を集積として再定義せよ。
 >
 > (define (count-leaves t) (accumulate
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
+>   ??  
+>   ??  
 > (map
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ )))
+>   ??  
+>   ??  )))
 
 > **\[練習問題 2.36\]練習問題 2.36:**
 > 手続き`accumulate/n`は`accumulate`に似ているが、三番目の引数として
@@ -4761,9 +4724,9 @@ tree)) (list tree)) (else (append (enumerate-tree (car tree))
 >
 > (define (accumulate-n op init seqs) (if (null? (car seqs)) nil (cons
 > (accumulate op init
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ )
+>   ??  )
 > (accumulate-n op init
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ ))))
+>   ??  ))))
 
 > **\[練習問題 2.37\]練習問題 2.37:**
 > ベクトル$ {\bf v} = (v_i) $を数値の列として表現し、行列$ {\bf m} = (m_{i\!j}) $を
@@ -4793,18 +4756,18 @@ tree)) (list tree)) (else (append (enumerate-tree (car tree))
 >
 > 内積は、次のように定義できる。[^83]
 >
-> (define (dot-product v w) (accumulate + 0 (map \* v w)))
+> (define (dot-product v w) (accumulate + 0 (map * v w)))
 >
 > ほかの行列演算を計算する以下の手続きについて、欠けた式を補え
 > (手続き`accumulate/n`はで定義されている)。
 >
-> (define (matrix-\*-vector m v) (map
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
+> (define (matrix-*-vector m v) (map
+>   ??  
 > m)) (define (transpose mat) (accumulate-n
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
-> mat)) (define (matrix-\*-matrix m n) (let ((cols (transpose n))) (map
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
+>   ??  
+>   ??  
+> mat)) (define (matrix-*-matrix m n) (let ((cols (transpose n))) (map
+>   ??  
 > m)))
 
 > **\[練習問題 2.38\]練習問題 2.38:**
@@ -4831,9 +4794,9 @@ tree)) (list tree)) (else (append (enumerate-tree (car tree))
 > 完成させよ。
 >
 > (define (reverse sequence) (fold-right (lambda (x y)
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ )
+>   ??  )
 > nil sequence)) (define (reverse sequence) (fold-left (lambda (x y)
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ )
+>   ??  )
 > nil sequence))
 
 #### マップのネスト {#マップのネスト .unnumbered}
@@ -5451,7 +5414,7 @@ painter2 split-point (make-vect 1.0 0.0) (make-vect 0.5 1.0)))) (lambda
 
 記号を含むリストは、私たちの言語の次のような式と同じように見えるかもしれません。
 
-(\* (+ 23 45) (+ x 9)) (define (fact n) (if (= n 1) 1 (\* n (fact (- n
+(* (+ 23 45) (+ x 9)) (define (fact n) (if (= n 1) 1 (* n (fact (- n
 1)))))
 
 記号を操作するためには、私たちの言語に新しい要素を入れる必要があります。
@@ -5629,7 +5592,7 @@ Lisp
 -   和と積は、リストとして構築する。
 
     (define (make-sum a1 a2) (list ’+ a1 a2)) (define (make-product
-    m1 m2) (list ’\* m1 m2))
+    m1 m2) (list ’* m1 m2))
 
 -   和は、最初の要素が記号`+`であるリストである。
 
@@ -5645,7 +5608,7 @@ Lisp
 
 -   積は、最初の要素が記号`*`であるリストである。
 
-    (define (product? x) (and (pair? x) (eq? (car x) ’\*)))
+    (define (product? x) (and (pair? x) (eq? (car x) ’*)))
 
 -   乗数は、積のリストの二つ目の項である。
 
@@ -5659,9 +5622,9 @@ Lisp
 組み合わせるだけで、ちゃんと動く記号微分プログラムができます。そのふるまいについて、
 いくつかの例を見てみましょう。
 
-(deriv ’(+ x 3) ’x)  *(+ 1 0)*  (deriv ’(\* x y) ’x)  *(+ (\* x 0) (\* 1
-y))*  (deriv ’(\* (\* x y) (+ x 3)) ’x)  *(+ (\* (\* x y) (+ 1 0))* 
- *(\* (+ (\* x 0) (\* 1 y))*   *(+ x 3)))* 
+(deriv ’(+ x 3) ’x)  *(+ 1 0)*  (deriv ’(* x y) ’x)  *(+ (* x 0) (* 1
+y))*  (deriv ’(* (* x y) (+ x 3)) ’x)  *(+ (* (* x y) (+ 1 0))* 
+ *(* (+ (* x 0) (* 1 y))*   *(+ x 3)))* 
 
 プログラムは正しい答えを返します。しかし、答えは簡約されていません。次の結果は、確かに
 正しいものです。
@@ -5694,12 +5657,12 @@ $ 0 + y = y $だという
 
 (define (make-product m1 m2) (cond ((or (=number? m1 0) (=number? m2 0))
 0) ((=number? m1 1) m2) ((=number? m2 1) m1) ((and (number? m1) (number?
-m2)) (\* m1 m2)) (else (list ’\* m1 m2))))
+m2)) (* m1 m2)) (else (list ’* m1 m2))))
 
 今回のものが、先ほどの三つの例に対してどう動作するかを次に示します。
 
-(deriv ’(+ x 3) ’x)  *1*  (deriv ’(\* x y) ’x)  *y*  (deriv ’(\* (\* x
-y) (+ x 3)) ’x)  *(+ (\* x y) (\* y (+ x 3)))* 
+(deriv ’(+ x 3) ’x)  *1*  (deriv ’(* x y) ’x)  *y*  (deriv ’(* (* x
+y) (+ x 3)) ’x)  *(+ (* x y) (* y (+ x 3)))* 
 
 これでだいぶよくなりましたが、三つ目の例を見ると、式を誰もが“最も単純”だといえる
 ような形にするプログラムができるまでには、まだだいぶ距離がありそうです。代数的簡約化の
@@ -5722,7 +5685,7 @@ y) (+ x 3)) ’x)  *(+ (\* x y) (\* y (+ x 3)))* 
 > 微分プログラムを拡張し、(2以上の)任意の数の項の和と積を扱えるようにせよ。
 > すると上の最後の例は以下のように表現できる。
 >
-> (deriv ’(\* x y (+ x 3)) ’x)
+> (deriv ’(* x y (+ x 3)) ’x)
 >
 > `deriv`手続きにはまったく手を加えず、和と積の表現のみを変更することによって解け。
 > 例えば、和の`addend`(加数)は最初の項で、`augend`(被加数)は残りの項の和と
@@ -6494,7 +6457,7 @@ $$\begin{array}{r@{{}={}}l}
 (real-part z2)) (+ (imag-part z1) (imag-part z2)))) (define (sub-complex
 z1 z2) (make-from-real-imag (- (real-part z1) (real-part z2)) (-
 (imag-part z1) (imag-part z2)))) (define (mul-complex z1 z2)
-(make-from-mag-ang (\* (magnitude z1) (magnitude z2)) (+ (angle z1)
+(make-from-mag-ang (* (magnitude z1) (magnitude z2)) (+ (angle z1)
 (angle z2)))) (define (div-complex z1 z2) (make-from-mag-ang (/
 (magnitude z1) (magnitude z2)) (- (angle z1) (angle z2))))
 
@@ -6525,14 +6488,14 @@ $$\begin{array}{r@{{}={}}lr@{{}={}}l}
 (magnitude z) (sqrt (+ (square (real-part z)) (square (imag-part z)))))
 (define (angle z) (atan (imag-part z) (real-part z))) (define
 (make-from-real-imag x y) (cons x y)) (define (make-from-mag-ang r a)
-(cons (\* r (cos a)) (\* r (sin a))))
+(cons (* r (cos a)) (* r (sin a))))
 
 一方、Alyssaは複素数を極形式で表現することにしました。彼女の方法では、絶対値と偏角の
 セレクトは素直にできます。しかし、実部と虚部を求めるには、三角法の関係を使う必要が
 あります。Alyssaの表現は次のようになります。
 
-(define (real-part z) (\* (magnitude z) (cos (angle z)))) (define
-(imag-part z) (\* (magnitude z) (sin (angle z)))) (define (magnitude z)
+(define (real-part z) (* (magnitude z) (cos (angle z)))) (define
+(imag-part z) (* (magnitude z) (sin (angle z)))) (define (magnitude z)
 (car z)) (define (angle z) (cdr z)) (define (make-from-real-imag x y)
 (cons (sqrt (+ (square x) (square y))) (atan y x))) (define
 (make-from-mag-ang r a) (cons r a))
@@ -6597,12 +6560,12 @@ datum) (error “Bad tagged datum: CONTENTS” datum)))
 (imag-part-rectangular z) (real-part-rectangular z))) (define
 (make-from-real-imag-rectangular x y) (attach-tag ’rectangular (cons x
 y))) (define (make-from-mag-ang-rectangular r a) (attach-tag
-’rectangular (cons (\* r (cos a)) (\* r (sin a)))))
+’rectangular (cons (* r (cos a)) (* r (sin a)))))
 
 Alyssaの極形式表現の修正版のは次のようになりました。
 
-(define (real-part-polar z) (\* (magnitude-polar z) (cos (angle-polar
-z)))) (define (imag-part-polar z) (\* (magnitude-polar z) (sin
+(define (real-part-polar z) (* (magnitude-polar z) (cos (angle-polar
+z)))) (define (imag-part-polar z) (* (magnitude-polar z) (sin
 (angle-polar z)))) (define (magnitude-polar z) (car z)) (define
 (angle-polar z) (cdr z)) (define (make-from-real-imag-polar x y)
 (attach-tag ’polar (cons (sqrt (+ (square x) (square y))) (atan y x))))
@@ -6727,11 +6690,11 @@ type*)と呼ばれるものです。これは、システム設計でモジュ�
 この計画を実装するために、演算-型テーブルを操作する`put`と`get`という二つの
 手続きがあるということにします。
 
--   $ \hbox{\tt(put}\;\langle $*op*$ \kern0.1em\rangle\;\langle $*type*$ \kern0.08em\rangle\;\langle $*item*$ \kern0.08em\rangle\hbox{\tt)} $は、テーブルの$ \langle $*op*$ \kern0.1em\rangle $と$ \langle $*type*$ \kern0.08em\rangle $が指すところに$ \langle $*item*$ \kern0.08em\rangle $を入れる。
+-   *op**type**item*$ \kern0.08em\rangle\hbox{\tt)} $は、テーブルの*op*と*type*が指すところに*item*を入れる。
 
--   $ \hbox{\tt(get}\;\langle $*op*$ \kern0.1em\rangle\;\langle $*type*$ \kern0.08em\rangle\hbox{\tt)} $は、テーブルから
-    $ \langle $*op*$ \kern0.08em\rangle $,
-    $ \langle $*type*$ \kern0.08em\rangle $の項目を検索し、そこで見つかった項目を返す。
+-   *op**type*$ \kern0.08em\rangle\hbox{\tt)} $は、テーブルから
+    *op*,
+    *type*の項目を検索し、そこで見つかった項目を返す。
     見つからなければ、`get`はfalseを返す。
 
 今のところは、`put`と`get`は言語に含まれているということにします。
@@ -6747,7 +6710,7 @@ type*)と呼ばれるものです。これは、システム設計でモジュ�
 (define (imag-part z) (cdr z)) (define (make-from-real-imag x y) (cons x
 y)) (define (magnitude z) (sqrt (+ (square (real-part z)) (square
 (imag-part z))))) (define (angle z) (atan (imag-part z) (real-part z)))
-(define (make-from-mag-ang r a) (cons (\* r (cos a)) (\* r (sin a))))
+(define (make-from-mag-ang r a) (cons (* r (cos a)) (* r (sin a))))
 
    (define (tag x) (attach-tag ’rectangular x)) (put ’real-part
 ’(rectangular) real-part) (put ’imag-part ’(rectangular) imag-part) (put
@@ -6771,8 +6734,8 @@ Alyassaの極形式パッケージも似たようなものになります。
 
 (define (install-polar-package)    (define (magnitude z) (car z))
 (define (angle z) (cdr z)) (define (make-from-mag-ang r a) (cons r a))
-(define (real-part z) (\* (magnitude z) (cos (angle z)))) (define
-(imag-part z) (\* (magnitude z) (sin (angle z)))) (define
+(define (real-part z) (* (magnitude z) (cos (angle z)))) (define
+(imag-part z) (* (magnitude z) (sin (angle z)))) (define
 (make-from-real-imag x y) (cons (sqrt (+ (square x) (square y))) (atan y
 x)))    (define (tag x) (attach-tag ’polar x)) (put ’real-part ’(polar)
 real-part) (put ’imag-part ’(polar) imag-part) (put ’magnitude ’(polar)
@@ -6821,8 +6784,8 @@ z) (apply-generic ’imag-part z)) (define (magnitude z) (apply-generic
 > exp) var) (deriv (augend exp) var))) ((product? exp) (make-sum
 > (make-product (multiplier exp) (deriv (multiplicand exp) var))
 > (make-product (deriv (multiplier exp) var) (multiplicand exp))))
->  $ {\color{SchemeDark}}\langle $  *more rules can be added
-> here*  $ {\color{SchemeDark}}\rangle $  (else (error “unknown
+>    *more rules can be added
+> here*    (else (error “unknown
 > expression type: DERIV” exp))))
 >
 > このプログラムは、微分する式の型によってディスパッチを実行していると捉えることもできる。
@@ -7002,7 +6965,7 @@ z) (apply-generic ’imag-part z)) (define (magnitude z) (apply-generic
 ’scheme-number x)) (put ’add ’(scheme-number scheme-number) (lambda (x
 y) (tag (+ x y)))) (put ’sub ’(scheme-number scheme-number) (lambda (x
 y) (tag (- x y)))) (put ’mul ’(scheme-number scheme-number) (lambda (x
-y) (tag (\* x y)))) (put ’div ’(scheme-number scheme-number) (lambda (x
+y) (tag (* x y)))) (put ’div ’(scheme-number scheme-number) (lambda (x
 y) (tag (/ x y)))) (put ’make ’scheme-number (lambda (x) (tag x)))
 ’done)
 
@@ -7017,12 +6980,12 @@ scheme-numberパッケージのユーザは、次の手続きによって(タグ
 
 (define (install-rational-package)    (define (numer x) (car x)) (define
 (denom x) (cdr x)) (define (make-rat n d) (let ((g (gcd n d))) (cons (/
-n g) (/ d g)))) (define (add-rat x y) (make-rat (+ (\* (numer x) (denom
-y)) (\* (numer y) (denom x))) (\* (denom x) (denom y)))) (define
-(sub-rat x y) (make-rat (- (\* (numer x) (denom y)) (\* (numer y) (denom
-x))) (\* (denom x) (denom y)))) (define (mul-rat x y) (make-rat (\*
-(numer x) (numer y)) (\* (denom x) (denom y)))) (define (div-rat x y)
-(make-rat (\* (numer x) (denom y)) (\* (denom x) (numer y))))    (define
+n g) (/ d g)))) (define (add-rat x y) (make-rat (+ (* (numer x) (denom
+y)) (* (numer y) (denom x))) (* (denom x) (denom y)))) (define
+(sub-rat x y) (make-rat (- (* (numer x) (denom y)) (* (numer y) (denom
+x))) (* (denom x) (denom y)))) (define (mul-rat x y) (make-rat (*
+(numer x) (numer y)) (* (denom x) (denom y)))) (define (div-rat x y)
+(make-rat (* (numer x) (denom y)) (* (denom x) (numer y))))    (define
 (tag x) (attach-tag ’rational x)) (put ’add ’(rational rational) (lambda
 (x y) (tag (add-rat x y)))) (put ’sub ’(rational rational) (lambda (x y)
 (tag (sub-rat x y)))) (put ’mul ’(rational rational) (lambda (x y) (tag
@@ -7044,7 +7007,7 @@ d)))) ’done) (define (make-rational n d) ((get ’make ’rational) n d))
 (real-part z2)) (+ (imag-part z1) (imag-part z2)))) (define (sub-complex
 z1 z2) (make-from-real-imag (- (real-part z1) (real-part z2)) (-
 (imag-part z1) (imag-part z2)))) (define (mul-complex z1 z2)
-(make-from-mag-ang (\* (magnitude z1) (magnitude z2)) (+ (angle z1)
+(make-from-mag-ang (* (magnitude z1) (magnitude z2)) (+ (angle z1)
 (angle z2)))) (define (div-complex z1 z2) (make-from-mag-ang (/
 (magnitude z1) (magnitude z2)) (- (angle z1) (angle z2))))    (define
 (tag z) (attach-tag ’complex z)) (put ’add ’(complex complex) (lambda
@@ -7477,13 +7440,13 @@ p2)) (make-poly (variable p1) (add-terms (term-list p1) (term-list p2)))
 (define (install-polynomial-package)       (define (make-poly variable
 term-list) (cons variable term-list)) (define (variable p) (car p))
 (define (term-list p) (cdr p))
- $ {\color{SchemeDark}}\langle $  *の`same/variable?`と`variable?`手続き*  $ {\color{SchemeDark}}\rangle $ 
-    $ {\color{SchemeDark}}\langle $  *下記の`adjoin/term`
-$ \dots $ `coeff`手続き*  $ {\color{SchemeDark}}\rangle $ 
+   *の`same/variable?`と`variable?`手続き*   
+      *下記の`adjoin/term`
+$ \dots $ `coeff`手続き*   
 (define (add-poly p1 p2)  $ \dots $ )
- $ {\color{SchemeDark}}\langle $  *`add/poly`が使う手続き*  $ {\color{SchemeDark}}\rangle $ 
+   *`add/poly`が使う手続き*   
 (define (mul-poly p1 p2)  $ \dots $ )
- $ {\color{SchemeDark}}\langle $  *`mul/poly`が使う手続き*  $ {\color{SchemeDark}}\rangle $ 
+   *`mul/poly`が使う手続き*   
    (define (tag p) (attach-tag ’polynomial p)) (put ’add ’(polynomial
 polynomial) (lambda (p1 p2) (tag (add-poly p1 p2)))) (put ’mul
 ’(polynomial polynomial) (lambda (p1 p2) (tag (mul-poly p1 p2)))) (put
@@ -7653,8 +7616,8 @@ $ A $は、`(1 2 0 3 -2 -5)`という形でうまく表現できます。この�
 > (t2 (first-term L2))) (if (&gt; (order t2) (order t1)) (list
 > (the-empty-termlist) L1) (let ((new-c (div (coeff t1) (coeff t2)))
 > (new-o (- (order t1) (order t2)))) (let ((rest-of-result
->  $ \langle $  *再帰的に残りを計算する*  $ \rangle $  ))
->  $ \langle $  *完全な結果を作る*  $ \rangle $  ))))))
+>    *再帰的に残りを計算する*    ))
+>    *完全な結果を作る*    ))))))
 
 #### 記号代数の型の階層 {#記号代数の型の階層 .unnumbered}
 
@@ -7983,13 +7946,13 @@ funds”))
 ここでは`set!`という特殊形式を使っています。構文は次のようになります。
 
 (set!
- $ {\color{SchemeDark}}\langle $  *name*  $ {\color{SchemeDark}}\rangle $ 
- $ {\color{SchemeDark}}\langle $  *new-value*  $ {\color{SchemeDark}}\rangle $ )
+   *name*   
+   *new-value*   )
 
-ここで、$ \langle $*name*$ \kern0.08em\rangle $は記号で、
-$ \langle $*new-value*$ \kern0.08em\rangle $は任意の式です。
-`set!`は$ \langle $*name*$ \kern0.08em\rangle $の値を
-$ \langle $*new-value*$ \kern0.08em\rangle $を評価して得られる結果に変更します。
+ここで、*name*は記号で、
+*new-value*は任意の式です。
+`set!`は*name*の値を
+*new-value*を評価して得られる結果に変更します。
 ここでの例では、`balance`を変更して、`balance`の以前の値から`amount`を
 引いた結果を新しい値にします。[^130]
 
@@ -7998,14 +7961,14 @@ $ \langle $*new-value*$ \kern0.08em\rangle $を評価して得られる結果に
 それから`balance`の値を返しています。一般的に、以下の式を評価すると、
 
 (begin
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}exp_1 $  $ {\color{SchemeDark}}\rangle $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}exp_2 $  $ {\color{SchemeDark}}\rangle $ 
+   $ {\color{SchemeDark}}exp_1 $   
+   $ {\color{SchemeDark}}exp_2 $   
  $ \dots $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}exp_k $  $ {\color{SchemeDark}}\rangle $ )
+   $ {\color{SchemeDark}}exp_k $   )
 
-$ \langle $$ exp_1 $$ \kern0.08em\rangle $から
-$ \langle $$ exp_k $$ \kern0.08em\rangle $までの式が順番に評価され、最後の式
-$ \langle $$ exp_k $$ \kern0.08em\rangle $の値が`begin`形式全体の値として
+$ exp_1 $から
+$ exp_k $までの式が順番に評価され、最後の式
+$ exp_k $の値が`begin`形式全体の値として
 返されます。 [^131]
 
 `withdraw`は意図した通りに動くのですが、変数`balance`が問題になります。
@@ -8263,8 +8226,8 @@ x2)))))) (iter trials 0 initial-x))
 > 乱数生成器をリセットして、与えられた値から始まる数列を作れるようにできると便利だ。
 > 記号`generate`または`reset`のどちらかを引数として取り、次のようなふるまいをする新しい
 > `rand`手続きを設計せよ。`(rand ’generate)`は新しい乱数を生成する。
-> `((rand ’reset)`$ \;\langle $*new-value*$ \kern0.11em\rangle $`)`は内部の
-> 状態変数を指定された$ \langle $*new-value*$ \kern0.08em\rangle $にリセットする。
+> `((rand ’reset)`*new-value*`)`は内部の
+> 状態変数を指定された*new-value*にリセットする。
 > つまり、状態をリセットすることによって、再現可能な数列が生成できる。これは乱数を使うプログラムを
 > テストしたりデバッグしたりするのにとても役に立つ。
 
@@ -8431,20 +8394,20 @@ programming*)と言います。計算モデルのいろいろな問題を引き�
 例えば、の反復階乗プログラムのことを思い出してみましょう。
 
 (define (factorial n) (define (iter product counter) (if (&gt; counter
-n) product (iter (\* counter product) (+ counter 1)))) (iter 1 1))
+n) product (iter (* counter product) (+ counter 1)))) (iter 1 1))
 
 内部の反復ループで、引数を渡す代わりに、変数`product`と`counter`の値を更新するのに
 明示的な代入を使うことで、より命令型のスタイルにできます。
 
 (define (factorial n) (let ((product 1) (counter 1)) (define (iter) (if
-(&gt; counter n) product (begin (set! product (\* counter product))
+(&gt; counter n) product (begin (set! product (* counter product))
 (set! counter (+ counter 1)) (iter)))) (iter)))
 
 これは、プログラムの生成する結果を変えるわけではありません。しかし、ここで微妙な罠が
 入り込んでいます。代入の順序はどうやって決めたらいいのでしょうか。今回の場合、プログラムは
 たまたまこのままで正しいものになっています。しかし、代入を逆の順番で書いてしまうと、
 
-(set! counter (+ counter 1)) (set! product (\* counter product))
+(set! counter (+ counter 1)) (set! product (* counter product))
 
 別の、間違った答えになるところです。一般的に、代入のあるプログラミングをする際には、代入の
 相対的な順番を注意深く考えて、それぞれの文が、中身の変わった各変数の正しいバージョンを
@@ -8561,12 +8524,12 @@ Iの`x`と3の束縛を(*shadow*)していると言います。
 $ \lambda $式が評価されたときの環境がその手続きの環境になります。
 例えば、次の手続きの定義がグローバル環境の中で評価される場合について考えてみましょう。
 
-(define (square x) (\* x x))
+(define (square x) (* x x))
 
 この手続き定義の文法は、その基層にある暗黙の$ \lambda $式に対するシンタックスシュガーに
 すぎません。次のものを使っても同じことです。
 
-(define square (lambda (x) (\* x x)))
+(define square (lambda (x) (* x x)))
 
 これは、グローバル環境の中で`(lambda (x) (* x x))`を評価し、グローバル環境の中で`square`
 とその結果を束縛するものです。
@@ -8621,7 +8584,7 @@ E1の中で、手続きの本体である`(* x x)`を評価します。E1の中�
 その記号に指定の値を割り当てるということも規定します。 [^141]
 最後に、`set!`のふるまいを規定します。そもそも、環境モデルを導入しなければならなくなったのは
 この演算のせいでした。ある環境で、
-`(set!`$ \;\langle $*variable*$ \kern0.08em\rangle $$ \;\langle $*value*$ \kern0.08em\rangle $`)`
+`(set!`*variable**value*`)`
 という式を評価すると、その環境の中でのその変数に対する束縛を探し、その束縛を変更して新しい値を
 指すようにします。つまり、その変数に対する束縛を含む、その環境の中での最初のフレームを探し、
 そのフレームを修正するということです。もしその変数がその環境の中で束縛されていなければ、
@@ -8639,8 +8602,8 @@ E1の中で、手続きの本体である`(* x x)`を評価します。E1の中�
 `(f 5)`という組み合わせを評価した結果がどのようにして136になるかということを
 示しました。
 
-(define (square x) (\* x x)) (define (sum-of-squares x y) (+ (square x)
-(square y))) (define (f a) (sum-of-squares (+ a 1) (\* a 2)))
+(define (square x) (* x x)) (define (sum-of-squares x y) (+ (square x)
+(square y))) (define (f a) (sum-of-squares (+ a 1) (* a 2)))
 
 同じ例を環境モデルを使って分析することもできます。は、グローバル環境で
 `f`, `square`,
@@ -8659,7 +8622,7 @@ E1の中で、手続きの本体である`(* x x)`を評価します。E1の中�
 `f`を呼び出すことによってE1という新しい環境が作られ、その中のフレームで`f`の仮引数である
 `a`が引数の5に束縛されます。E1の中で、`f`の本体を評価します。
 
-(sum-of-squares (+ a 1) (\* a 2))
+(sum-of-squares (+ a 1) (* a 2))
 
 この組み合わせを評価するには、まず部分式から評価します。最初の部分式`sum/of/squares`は、
 値として手続きオブジェクトを持っています(この値の見つけ方に注意してください。まずE1の最初の
@@ -8704,12 +8667,12 @@ E1の中で、手続きの本体である`(* x x)`を評価します。E1の中�
 > では、階乗を計算する二つの手続きを解析するのに置換モデルを使った。
 > 再帰版は以下の通りで、
 >
-> (define (factorial n) (if (= n 1) 1 (\* n (factorial (- n 1)))))
+> (define (factorial n) (if (= n 1) 1 (* n (factorial (- n 1)))))
 >
 > 反復版は以下の通りである。
 >
 > (define (factorial n) (fact-iter 1 1 n)) (define (fact-iter product
-> counter max-count) (if (&gt; counter max-count) product (fact-iter (\*
+> counter max-count) (if (&gt; counter max-count) product (fact-iter (*
 > counter product) (+ counter 1) max-count)))
 >
 > それぞれの`factorial`手続きを使って`(factorial 6)`を評価することによって作られる
@@ -8837,16 +8800,16 @@ E2に格納された`balance`を参照しています。このため、一方の
 > 思い出そう。
 >
 > (let
-> (( $ {\color{SchemeDark}}\langle $  *var*  $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $  *exp*  $ {\color{SchemeDark}}\rangle $ ))
->  $ {\color{SchemeDark}}\langle $  *body*  $ {\color{SchemeDark}}\rangle $ )
+> ((   *var*   
+>    *exp*   ))
+>    *body*   )
 >
 > 上記の式は、次の式の別の書き方として解釈される。
 >
 > ((lambda
-> ( $ {\color{SchemeDark}}\langle $  *var*  $ {\color{SchemeDark}}\rangle $ )
->  $ {\color{SchemeDark}}\langle $  *body*  $ {\color{SchemeDark}}\rangle $ )
->  $ {\color{SchemeDark}}\langle $  *exp*  $ {\color{SchemeDark}}\rangle $ )
+> (   *var*   )
+>    *body*   )
+>    *exp*   )
 >
 > 環境モデルを使って、この`make/withdraw`の別のバージョンを解析し、上のような図を描いて
 > 次のやりとりを説明せよ。
@@ -8958,8 +8921,8 @@ E1に出てくる`x`の束縛を参照することになります。これは、
 指定された口座の残高を指定された新しい値に変更する演算ができるようにすることが考えられます。
 
 (set-balance!
- $ {\color{SchemeDark}}\langle $  *account*  $ {\color{SchemeDark}}\rangle $ 
- $ {\color{SchemeDark}}\langle $  *new-value*  $ {\color{SchemeDark}}\rangle $ )
+   *account*   
+   *new-value*   )
 
 ミューテータが定義されているデータオブジェクトは、 (*mutable data
 object*)と呼ばれます。
@@ -9066,11 +9029,11 @@ object*)と呼ばれます。
 >
 > (define x (list ’a ’b)) (define y (list ’c ’d)) (define z (append x
 > y)) z  *(a b c d)*  (cdr x)
->  $ {\color{SchemeDark}}\langle $  *response*  $ {\color{SchemeDark}}\rangle $ 
+>    *response*   
 > (define w (append! x y)) w  *(a b c d)*  (cdr x)
->  $ {\color{SchemeDark}}\langle $  *response*  $ {\color{SchemeDark}}\rangle $ 
+>    *response*   
 >
-> 空欄の$ \langle $*response*$ \rangle $はどのようになるだろうか。
+> 空欄の*response*はどのようになるだろうか。
 > 箱とポインタの図を描き、答えについて説明せよ。
 
 > **\[練習問題 3.13\]練習問題 3.13:**
@@ -9382,8 +9345,8 @@ new-pair) (set-rear-ptr! queue new-pair) queue))))
 > 以下のような形になる。
 >
 > (define (make-queue) (let ((front-ptr  $ \dots $  ) (rear-ptr
->  $ \dots $  ))  $ {\color{SchemeDark}}\langle $  *definitions of
-> internal procedures*  $ {\color{SchemeDark}}\rangle $  (define
+>  $ \dots $  ))    *definitions of
+> internal procedures*    (define
 > (dispatch m)  $ \dots $ ) dispatch))
 >
 > `make/queue`の定義を完成させ、この表現によるキューの演算を実装せよ。
@@ -9452,7 +9415,7 @@ key value) (cdr table))))) ’ok)
 
 新しいテーブルを構築するのは、記号`*table*`を持つリストを作るだけで終わりです。
 
-(define (make-table) (list ’\*table\*))
+(define (make-table) (list ’*table*))
 
 #### 二次元テーブル {#二次元テーブル .unnumbered}
 
@@ -9460,7 +9423,7 @@ key value) (cdr table))))) ’ok)
 テーブルは、一次元テーブルのそれぞれのキーがサブテーブルを特定するようにすることで作れます。
 は、次のテーブルに対する箱とポインタの図を示したものです。
 
-math: +: 43 letters: a: 97 -: 45 b: 98 \*: 42
+math: +: 43 letters: a: 97 -: 45 b: 98 *: 42
 
 このテーブルは、二つのサブテーブルを持っています。(サブテーブルには特別なヘッダ記号は
 必要ありません。サブテーブルを特定するキーがその目的を果たすためです)。
@@ -9501,7 +9464,7 @@ value)) (cdr table))))) ’ok)
 この“テーブルオブジェクト”は内部テーブルに対する演算を行う手続きを提供します。以下に、
 この方法で表現した二次元テーブル生成プログラムを示します。
 
-(define (make-table) (let ((local-table (list ’\*table\*))) (define
+(define (make-table) (let ((local-table (list ’*table*))) (define
 (lookup key-1 key-2) (let ((subtable (assoc key-1 (cdr local-table))))
 (if subtable (let ((record (assoc key-2 (cdr subtable)))) (if record
 (cdr record) false)) false))) (define (insert! key-1 key-2 value) (let
@@ -9681,15 +9644,15 @@ sum c2) (or-gate c1 c2 c-out) ’ok))
 基本関数箱は、ひとつの線上の信号の変化がほかの線上の信号に影響を与える“力”を実装した
 ものです。関数箱を構築するには、線に対する次のような演算を使います。
 
--   `(get/signal`$ \;\;\langle\kern0.06em\hbox{\ttfamily\slshape wire}\kern0.08em\rangle $`)`
+-   `(get/signal``)`
 
     これは、線上の信号の現時点での値を返します。
 
--   `(set/signal!`$ \;\;\langle\kern0.08em\hbox{\ttfamily\slshape wire}\kern0.08em\rangle\;\;\langle\kern0.08em\hbox{\ttfamily\slshape new value}\kern0.08em\rangle $`)`
+-   `(set/signal!``)`
 
     これは、線上の信号の値を新しい値に変更します。
 
--   `(add/action!`$ \;\;\langle\kern0.08em\hbox{\ttfamily\slshape wire}\kern0.08em\rangle\;\;\langle\kern0.08em\hbox{\ttfamily\slshape procedure of no arguments}\kern0.02em\rangle $`)`
+-   `(add/action!``)`
 
     これは、線上の信号の値が変わったときに、指定された手続きが必ず実行されるようにするものです。
     そのような手続きは、線上の信号の値の変化をほかの線に伝える手段となります。
@@ -10156,7 +10119,7 @@ me)))) (define (process-forget-value) (forget-value! sum me)
 (define (multiplier m1 m2 product) (define (process-new-value) (cond
 ((or (and (has-value? m1) (= (get-value m1) 0)) (and (has-value? m2) (=
 (get-value m2) 0))) (set-value! product 0 me)) ((and (has-value? m1)
-(has-value? m2)) (set-value! product (\* (get-value m1) (get-value m2))
+(has-value? m2)) (set-value! product (* (get-value m1) (get-value m2))
 me)) ((and (has-value? product) (has-value? m1)) (set-value! m2 (/
 (get-value product) (get-value m1)) me)) ((and (has-value? product)
 (has-value? m2)) (set-value! m1 (/ (get-value product) (get-value m2))
@@ -10262,14 +10225,14 @@ retractor)) (define (connect connector new-constraint) ((connector
 > (define (squarer a b) (define (process-new-value) (if (has-value? b)
 > (if (&lt; (get-value b) 0) (error “square less than 0: SQUARER”
 > (get-value b))
->  $ {\color{SchemeDark}}\langle $  *alternative1*  $ {\color{SchemeDark}}\rangle $ )
->  $ {\color{SchemeDark}}\langle $  *alternative2*  $ {\color{SchemeDark}}\rangle $ ))
+>    *alternative1*   )
+>    *alternative2*   ))
 > (define (process-forget-value)
->  $ {\color{SchemeDark}}\langle $  *body1*  $ {\color{SchemeDark}}\rangle $ )
+>    *body1*   )
 > (define (me request)
->  $ {\color{SchemeDark}}\langle $  *body2*  $ {\color{SchemeDark}}\rangle $ )
->  $ {\color{SchemeDark}}\langle $  *rest of
-> definition*  $ {\color{SchemeDark}}\rangle $  me)
+>    *body2*   )
+>    *rest of
+> definition*    me)
 
 > **\[練習問題 3.36\]練習問題 3.36:**
 > グローバル環境で、次のような式の列を評価するとする。
@@ -10288,7 +10251,7 @@ retractor)) (define (connect connector new-constraint) ((connector
 > `celsius/fahrenheit/converter`手続きは、以下のような式指向スタイルによる定義に
 > 比べると面倒だ。
 >
-> (define (celsius-fahrenheit-converter x) (c+ (c\* (c/ (cv 9) (cv 5))
+> (define (celsius-fahrenheit-converter x) (c+ (c* (c/ (cv 9) (cv 5))
 > x) (cv 32))) (define C (make-connector)) (define F
 > (celsius-fahrenheit-converter C))
 >
@@ -10524,20 +10487,20 @@ Paulはほかに個人口座も持っているという状況を示したもの�
 拡張Schemeがあると仮定します。
 
 (parallel-execute
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}p_1 $  $ {\color{SchemeDark}}\rangle $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}p_2 $  $ {\color{SchemeDark}}\rangle $ 
+   $ {\color{SchemeDark}}p_1 $   
+   $ {\color{SchemeDark}}p_2 $   
  $ \dots $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}p_k $  $ {\color{SchemeDark}}\rangle $ )
+   $ {\color{SchemeDark}}p_k $   )
 
-各$ \langle $$ p $$ \kern0.08em\rangle $は、引数なしの手続きである必要があります。
-`parallel/execute`は、各$ \langle $$ p $$ \kern0.08em\rangle $に対して
-独立したプロセスを作り、それらのプロセスは$ \langle $$ p $$ \kern0.08em\rangle $を
+各$ p $は、引数なしの手続きである必要があります。
+`parallel/execute`は、各$ p $に対して
+独立したプロセスを作り、それらのプロセスは$ p $を
 (引数なしで)適用します。これらのプロセスは、すべて並行に実行されます。
 [^168]
 
 これの使い方の例として、以下のものについて考えてみましょう。
 
-(define x 10) (parallel-execute (lambda () (set! x (\* x x))) (lambda ()
+(define x 10) (parallel-execute (lambda () (set! x (* x x))) (lambda ()
 (set! x (+ x 1))))
 
 これは、二つの並行プロセスを作ります。`x`に`x`かける`x`を設定する$ P_1 $と、
@@ -10556,7 +10519,7 @@ Paulはほかに個人口座も持っているという状況を示したもの�
 返しません。
 
 (define x 10) (define s (make-serializer)) (parallel-execute (s (lambda
-() (set! x (\* x x)))) (s (lambda () (set! x (+ x 1)))))
+() (set! x (* x x)))) (s (lambda () (set! x (+ x 1)))))
 
 ほかの可能性は排除されています。これは、$ P_1 $と$ P_2 $の実行が入れ違いにならないように
 なっているからです。
@@ -10583,19 +10546,19 @@ request: MAKE-ACCOUNT” m)))) dispatch))
 > 残るだろうか。
 >
 > (define x 10) (define s (make-serializer)) (parallel-execute (lambda
-> () (set! x ((s (lambda () (\* x x)))))) (s (lambda () (set! x (+ x
+> () (set! x ((s (lambda () (* x x)))))) (s (lambda () (set! x (+ x
 > 1)))))
 
 > **\[練習問題 3.40\]練習問題 3.40:**
 > 以下のものを実行したときに`x`が取り得る値をすべて列挙せよ。
 >
-> (define x 10) (parallel-execute (lambda () (set! x (\* x x))) (lambda
-> () (set! x (\* x x x))))
+> (define x 10) (parallel-execute (lambda () (set! x (* x x))) (lambda
+> () (set! x (* x x x))))
 >
 > 以下の直列化手続きを使うと、これらの可能性のうちどれが残るだろうか。
 >
 > (define x 10) (define s (make-serializer)) (parallel-execute (s
-> (lambda () (set! x (\* x x)))) (s (lambda () (set! x (\* x x x)))))
+> (lambda () (set! x (* x x)))) (s (lambda () (set! x (* x x x)))))
 
 > **\[練習問題 3.41\]練習問題 3.41:** Ben
 > Bitdiddleは、次のように銀行口座を実装したほうがいいのではないかと心配している
@@ -11016,9 +10979,9 @@ s)))))
 `cdr`は選択時に評価されます。
 
 ここでは、`delay`という特殊形式に基づいてストリームを実装します。
-`(delay <exp>)`を評価しても、式$ \langle $*exp*$ \kern0.08em\rangle $は
+`(delay <exp>)`を評価しても、式*exp*は
 評価されず、代わりにいわゆる(*delayed object*)を返します。
-これは、ある将来の時点で$ \langle $*exp*$ \kern0.08em\rangle $を評価するという“約束”
+これは、ある将来の時点で*exp*を評価するという“約束”
 と考えることができます。`delay`と対になるものとして、`force`という手続きがあります。
 これは、遅延オブジェクトを引数として取り、評価を実行するというものです。つまり、`delay`に
 約束の遂行を迫るということになります。`delay`と`force`の実装方法については後ほど
@@ -11027,15 +10990,15 @@ s)))))
 `cons/stream`は、次の形が
 
 (cons-stream
- $ {\color{SchemeDark}}\langle $  *a*  $ {\color{SchemeDark}}\rangle $ 
- $ {\color{SchemeDark}}\langle $  *b*  $ {\color{SchemeDark}}\rangle $ )
+   *a*   
+   *b*   )
 
 以下と等価になるよう定義された特殊形式です。
 
 (cons
- $ {\color{SchemeDark}}\langle $  *a*  $ {\color{SchemeDark}}\rangle $ 
+   *a*   
 (delay
- $ {\color{SchemeDark}}\langle $  *b*  $ {\color{SchemeDark}}\rangle $ ))
+   *b*   ))
 
 つまり、ストリームを構築するのにはペアを使うということです。しかし、ストリームの残りの値を
 `cdr`に入れる代わりに、要求されることがあれば残りを計算するという約束を入れることにします。
@@ -11127,12 +11090,12 @@ stream)))
 実現できます。`delay`は、次のようなシンタックスシュガーによって
 
 (delay
- $ {\color{SchemeDark}}\langle $  *exp*  $ {\color{SchemeDark}}\rangle $ )
+   *exp*   )
 
 以下のものを表すような特殊形式として実装できます。
 
 (lambda ()
- $ {\color{SchemeDark}}\langle $  *exp*  $ {\color{SchemeDark}}\rangle $ )
+   *exp*   )
 
 `force`は、`delay`によって生成された(引数なしの)手続きを呼び出すだけです。
 ですので、`force`は次のような手続きとして実装できます。
@@ -11158,7 +11121,7 @@ already-run? true) result) result))))
 そして、`(delay <exp>)`が以下と等価になるように`delay`を定義します。
 
 (memo-proc (lambda ()
- $ {\color{SchemeDark}}\langle $  *exp*  $ {\color{SchemeDark}}\rangle $ ))
+   *exp*   ))
 
 `force`は以前の定義そのままです。 [^186]
 
@@ -11167,13 +11130,13 @@ already-run? true) result) result))))
 > 複数の引数を取る手続きを使えるよう`stream/map`を一般化するものである。
 >
 > (define (stream-map proc . argstreams) (if
-> ( $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
+> (  ??  
 > (car argstreams)) the-empty-stream
-> ( $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
+> (  ??  
 > (apply proc (map
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
+>   ??  
 > argstreams)) (apply stream-map (cons proc (map
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
+>   ??  
 > argstreams))))))
 
 > **\[練習問題 3.51\]練習問題 3.51:**
@@ -11323,7 +11286,7 @@ fibs) fibs))))
 そのようなストリーム定義を定式化するのに便利な手続きとしては、ほかに`scale/stream`
 というものもあります。これは、ストリームの各要素に与えられた定数をかけるものです。
 
-(define (scale-stream stream factor) (stream-map (lambda (x) (\* x
+(define (scale-stream stream factor) (stream-map (lambda (x) (* x
 factor)) stream))
 
 例えば、
@@ -11366,8 +11329,8 @@ ps)) n) true) ((divisible? n (stream-car ps)) false) (else (iter
 > (0から数えて)$ n $番目の要素が$ n + 1 $の階乗となるような以下のストリームの定義を完成させよ。
 >
 > (define factorials (cons-stream 1 (mul-streams
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ )))
+>   ??  
+>   ??  )))
 
 > **\[練習問題 3.55\]練習問題 3.55:**
 > ストリーム$ S $を引数として取り、要素が$ S_0 $, $ S_0 + S_1 $,
@@ -11407,10 +11370,10 @@ ps)) n) true) ((divisible? n (stream-car ps)) false) (else (iter
 > こうすると、求めるストリームは`merge`を使って次のように構築できる。
 >
 > (define S (cons-stream 1 (merge
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ )))
+>   ??  
+>   ??  )))
 >
-> $ \langle $*??*$ \kern0.08em\rangle $となっている箇所に欠けている式を埋めよ。
+> *??*となっている箇所に欠けている式を埋めよ。
 
 > **\[練習問題 3.57\]練習問題 3.57:**
 > `add/streams`手続きによる`fibs`の定義を使って$ n $番目のフィボナッチ数を
@@ -11422,8 +11385,8 @@ ps)) n) true) ((divisible? n (stream-car ps)) false) (else (iter
 > **\[練習問題 3.58\]練習問題 3.58:**
 > 以下の手続きによって計算されるストリームを解釈せよ。
 >
-> (define (expand num den radix) (cons-stream (quotient (\* num radix)
-> den) (expand (remainder (\* num radix) den) den radix)))
+> (define (expand num den radix) (cons-stream (quotient (* num radix)
+> den) (expand (remainder (* num radix) den) den radix)))
 >
 > (`quotient`は、二つの整数に対して、整数の割り算の答えを返す基本要素である。)
 > `(expand 1 7 10)`はどのような要素列を生成するだろうか。また、`(expand 3 8 10)`ではどうか。
@@ -11465,19 +11428,19 @@ ps)) n) true) ((divisible? n (stream-car ps)) false) (else (iter
 >     生成する方法を示せ。
 >
 >     (define cosine-series (cons-stream 1
->      $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ ))
+>       ??  ))
 >     (define sine-series (cons-stream 0
->      $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ ))
+>       ??  ))
 >
 > **\[練習問題 3.60\]練習問題 3.60:**
 > のように係数のストリームとして表現された羃級数では、級数の加算は
 > `add/streams`により実装される。級数を乗算する以下の手続きの定義を完成させよ。
 >
 > (define (mul-series s1 s2) (cons-stream
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
+>   ??  
 > (add-streams
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ )))
+>   ??  
+>   ??  )))
 >
 > の級数を使って$ \sin^2 x +\cos^2 x = 1 $となることを確認することで、
 > 手続きをテストできる。
@@ -11578,7 +11541,7 @@ $$S_{n+1} - {(S_{n+1} - S_n)^2 \over S_{n-1} - 2S_n + S_{n+1}}\,.$$
 
 (define (euler-transform s) (let ((s0 (stream-ref s 0))    (s1
 (stream-ref s 1))    (s2 (stream-ref s 2)))    (cons-stream (- s2 (/
-(square (- s2 s1)) (+ s0 (\* -2 s1) s2))) (euler-transform (stream-cdr
+(square (- s2 s1)) (+ s0 (* -2 s1) s2))) (euler-transform (stream-cdr
 s)))))
 
 これで、$ \pi $の近似値の列を使ってオイラーの加速を実際にやってみることができます。
@@ -11745,7 +11708,7 @@ $ (S_0, T_0) $  & $ (S_0, T_1) $    & $ (S_0, T_2) $    & $ \dots $ \cr
 よって、求めるペアのストリームは次のように作ることができます。
 
 (define (pairs s t) (cons-stream (list (stream-car s) (stream-car t))
-( $ {\color{SchemeDark}}\langle $  *何らかの方法で組み合わせる*  $ {\color{SchemeDark}}\rangle $ 
+(   *何らかの方法で組み合わせる*   
 (stream-map (lambda (x) (list (stream-car s) x)) (stream-cdr t)) (pairs
 (stream-cdr s) (stream-cdr t)))))
 
@@ -11925,9 +11888,9 @@ initial-value (add-streams (scale-stream integrand dt) int))) int)
 > `stream-map`を使っている。
 >
 > (define zero-crossings (stream-map sign-change-detector sense-data
->  $ {\color{SchemeDark}}\langle $  *expression*  $ {\color{SchemeDark}}\rangle $ ))
+>    *expression*   ))
 >
-> $ \langle $*expression*$ \rangle $によって示された部分を埋め、プログラムを完成させよ。
+> *expression*によって示された部分を埋め、プログラムを完成させよ。
 
 > **\[練習問題 3.75\]練習問題 3.75:**
 > 残念なことに、のAlyssaのゼロ交差識別器は十分でないということがわかった。
@@ -12040,7 +12003,7 @@ dy (stream-map f y)) y)
 >
 > (define (integral integrand initial-value dt) (cons-stream
 > initial-value (if (stream-null? integrand) the-empty-stream (integral
-> (stream-cdr integrand) (+ (\* dt (stream-car integrand))
+> (stream-cdr integrand) (+ (* dt (stream-car integrand))
 > initial-value) dt))))
 >
 > ループを含むシステムについて使うと、この手続きは`integral`の元のバージョンと
@@ -12647,27 +12610,27 @@ exp) (eval (definition-value exp) env) env) ’ok)
 -   定義は以下の形式か、
 
     (define
-     $ {\color{SchemeDark}}\langle $  *var*  $ {\color{SchemeDark}}\rangle $ 
-     $ {\color{SchemeDark}}\langle $  *value*  $ {\color{SchemeDark}}\rangle $ )
+       *var*   
+       *value*   )
 
     以下の形式です。
 
     (define
-    ( $ {\color{SchemeDark}}\langle $  *var*  $ {\color{SchemeDark}}\rangle $ 
-     $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}parameter_1 $  $ {\color{SchemeDark}}\rangle $ 
+    (   *var*   
+       $ {\color{SchemeDark}}parameter_1 $   
      $ \dots $ 
-     $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}parameter_n $  $ {\color{SchemeDark}}\rangle $ )
-     $ {\color{SchemeDark}}\langle $  *body*  $ {\color{SchemeDark}}\rangle $ )
+       $ {\color{SchemeDark}}parameter_n $   )
+       *body*   )
 
     後者の形式(標準手続き定義)は、以下のシンタックスシュガーです。
 
     (define
-     $ {\color{SchemeDark}}\langle $  *var*  $ {\color{SchemeDark}}\rangle $ 
+       *var*   
     (lambda
-    ( $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}parameter_1 $  $ {\color{SchemeDark}}\rangle $ 
+    (   $ {\color{SchemeDark}}parameter_1 $   
      $ \dots $ 
-     $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}parameter_n $  $ {\color{SchemeDark}}\rangle $ )
-     $ {\color{SchemeDark}}\langle $  *body*  $ {\color{SchemeDark}}\rangle $ ))
+       $ {\color{SchemeDark}}parameter_n $   )
+       *body*   ))
 
     これに対応する構文手続きは以下の通りです。
 
@@ -12801,9 +12764,9 @@ expression*)と言います。`let`式も同じく派生式です(参照)。
 
 > **\[練習問題 4.5\]練習問題 4.5:**
 > Schemeには、`cond`節の別の構文として、`(<test> => <recipient>)`というものが
-> ある。これは、$ \langle $*test*$ \kern0.08em\rangle $が真の値として評価される場合、
-> $ \langle $*recipient*$ \kern0.08em\rangle $が評価される。その値は1引数の手続きである
-> 必要がある。そして、この手続きが$ \langle $*test*$ \kern0.08em\rangle $という値で
+> ある。これは、*test*が真の値として評価される場合、
+> *recipient*が評価される。その値は1引数の手続きである
+> 必要がある。そして、この手続きが*test*という値で
 > 呼び出され、その結果が`cond`式の値として返される。例えば、
 >
 > (cond ((assoc ’b ’((a 1) (b 2))) =&gt; cadr) (else false))
@@ -12814,23 +12777,23 @@ expression*)と言います。`let`式も同じく派生式です(参照)。
 > `let`式は派生式である。以下は、
 >
 > (let
-> (( $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}var_1 $  $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}exp_1 $  $ {\color{SchemeDark}}\rangle $ )
+> ((   $ {\color{SchemeDark}}var_1 $   
+>    $ {\color{SchemeDark}}exp_1 $   )
 >  $ \dots $ 
-> ( $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}var_n $  $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}exp_n $  $ {\color{SchemeDark}}\rangle $ ))
->  $ {\color{SchemeDark}}\langle $  *body*  $ {\color{SchemeDark}}\rangle $ )
+> (   $ {\color{SchemeDark}}var_n $   
+>    $ {\color{SchemeDark}}exp_n $   ))
+>    *body*   )
 >
 > 次のものと等価だからだ。
 >
 > ((lambda
-> ( $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}var_1 $  $ {\color{SchemeDark}}\rangle $ 
+> (   $ {\color{SchemeDark}}var_1 $   
 >  $ \dots $ 
->  $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}var_n $  $ {\color{SchemeDark}}\rangle $ )
->  $ {\color{SchemeDark}}\langle $  *body*  $ {\color{SchemeDark}}\rangle $ )
->  $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}exp_1 $  $ {\color{SchemeDark}}\rangle $ 
+>    $ {\color{SchemeDark}}var_n $   )
+>    *body*   )
+>    $ {\color{SchemeDark}}exp_1 $   
 >  $ \dots $ 
->  $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}exp_n $  $ {\color{SchemeDark}}\rangle $ )
+>    $ {\color{SchemeDark}}exp_n $   )
 >
 > `let`式の評価を、上記のような組み合わせの評価に帰着させる構文変形`let/>combination`を
 > 実装せよ。また、`eval`に適切な節を追加し、`let`式を扱えるようにせよ。
@@ -12841,14 +12804,14 @@ expression*)と言います。`let`式も同じく派生式です(参照)。
 > それぞれの束縛は、それまでの束縛がすべて見える環境の中で行われるというところが違う。
 > 例えば、
 >
-> (let\* ((x 3) (y (+ x 2)) (z (+ x y 5))) (\* x z))
+> (let* ((x 3) (y (+ x 2)) (z (+ x y 5))) (* x z))
 >
 > は39を返す。`let*`式を入れ子の`let`式の集合として書き直す方法を説明せよ。また、
 > この変形を実行する手続き`let*/>nested/lets`を書け。もしすでに`let`を実装していて
 > ()、`let*`を扱えるように評価器を拡張したいとしたら、以下のアクションを持つ
 > 節を`eval`に追加することで足りるだろうか。
 >
-> (eval (let\*-&gt;nested-lets exp) env)
+> (eval (let*-&gt;nested-lets exp) env)
 >
 > それとも、非派生式によって明示的に`let*`を拡張する必要があるだろうか。
 
@@ -12856,18 +12819,18 @@ expression*)と言います。`let`式も同じく派生式です(参照)。
 > “名前つき`let`”は`let`の変種で、以下の形式を持つ。
 >
 > (let
->  $ {\color{SchemeDark}}\langle $  *var*  $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $  *bindings*  $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $  *body*  $ {\color{SchemeDark}}\rangle $ )
+>    *var*   
+>    *bindings*   
+>    *body*   )
 >
-> $ \langle $*bindings*$ \kern0.08em\rangle $と
-> $ \langle $*body*$ \kern0.08em\rangle $は通常の`let`と同じである。違うのは、
-> $ \langle $*body*$ \kern0.08em\rangle $内部で
-> $ \langle $*var*$ \kern0.08em\rangle $が、
-> 本体が$ \langle $*body*$ \kern0.08em\rangle $で
-> 引数が$ \langle $*bindings*$ \kern0.08em\rangle $内の変数である手続きに束縛されるという
-> ところだ。このため、$ \langle $*var*$ \kern0.08em\rangle $という名前の
-> 手続きを呼び出すことによって、繰り返し$ \langle $*body*$ \kern0.08em\rangle $を実行できる。
+> *bindings*と
+> *body*は通常の`let`と同じである。違うのは、
+> *body*内部で
+> *var*が、
+> 本体が*body*で
+> 引数が*bindings*内の変数である手続きに束縛されるという
+> ところだ。このため、*var*という名前の
+> 手続きを呼び出すことによって、繰り返し*body*を実行できる。
 > 例えば、反復フィボナッチ手続き()は、名前つき`let`を使って次のように
 > 書き直すことができる。
 >
@@ -12909,12 +12872,12 @@ expression*)と言います。`let`式も同じく派生式です(参照)。
 
 -   `(apply/primitive/procedure <proc> <args>)`
 
-    これは、与えられた基本手続きをリスト$ \langle $*args*$ \kern0.08em\rangle $中の
+    これは、与えられた基本手続きをリスト*args*中の
     引数の値に適用し、その結果を返します。
 
 -   `(primitive/procedure? <proc>)`
 
-    これは、$ \langle $*proc*$ \kern0.08em\rangle $が基本手続きかどうかテストします。
+    これは、*proc*が基本手続きかどうかテストします。
 
 これらの基本手続きを扱う仕組みについては、でさらに詳しく説明します。
 
@@ -12934,28 +12897,28 @@ body env)) (define (compound-procedure? p) (tagged-list? p ’procedure))
 
 -   `(lookup/variable/value <var> <env>)`
 
-    これは、環境$ \langle $*env*$ \kern0.08em\rangle $内で
-    記号$ \langle $*var*$ \kern0.08em\rangle $に束縛されている値を返します。
+    これは、環境*env*内で
+    記号*var*に束縛されている値を返します。
     変数が束縛されていない場合、エラーを発生させます。
 
 -   `(extend/environment <variables> <values> <base/env>)`
 
-    これは、リスト$ \langle $*variables*$ \kern0.08em\rangle $の記号が
-    リスト$ \langle $*values*$ \kern0.08em\rangle $の対応する要素に束縛されている
+    これは、リスト*variables*の記号が
+    リスト*values*の対応する要素に束縛されている
     新しいフレームひとつからなる新しい環境を返します。
-    環境$ \langle $*base/env*$ \kern0.08em\rangle $が外側の環境となります。
+    環境*base/env*が外側の環境となります。
 
 -   `(define/variable! <var> <value> <env>)`
 
-    これは、環境$ \langle $*env*$ \kern0.08em\rangle $の一つ目のフレームに、
-    変数$ \langle $*var*$ \kern0.08em\rangle $と
-    値$ \langle $*value*$ \kern0.08em\rangle $を関連づける新たな束縛を追加します。
+    これは、環境*env*の一つ目のフレームに、
+    変数*var*と
+    値*value*を関連づける新たな束縛を追加します。
 
 -   `(set/variable/value! <var> <value> <env>)`
 
-    これは、環境$ \langle $*env*$ \kern0.08em\rangle $中の変数
-    $ \langle $*var*$ \kern0.08em\rangle $の束縛を変更して、変数を値$ \langle $*value*
-    $ \kern0.08em\rangle $に束縛し直します。
+    これは、環境*env*中の変数
+    *var*の束縛を変更して、変数を値*value*
+    に束縛し直します。
     変数が未束縛であればエラーを発生させます。
 
 これらの演算を実装するために、環境はフレームのリストとして表現することにします。
@@ -13073,8 +13036,8 @@ the-global-environment (setup-environment))
 
 (define primitive-procedures (list (list ’car car) (list ’cdr cdr) (list
 ’cons cons) (list ’null? null?)
- $ {\color{SchemeDark}}\langle $  *more
-primitives*  $ {\color{SchemeDark}}\rangle $  )) (define
+   *more
+primitives*    )) (define
 (primitive-procedure-names) (map car primitive-procedures)) (define
 (primitive-procedure-objects) (map (lambda (proc) (list ’primitive (cadr
 proc))) primitive-procedures))
@@ -13133,7 +13096,7 @@ object) ’&lt;procedure-env&gt;)) (display object)))
 抽象機械の記述であるというものがあります。例えば、階乗を計算する見慣れたプログラムについて
 考えてみましょう。
 
-(define (factorial n) (if (= n 1) 1 (\* (factorial (- n 1)) n)))
+(define (factorial n) (if (= n 1) 1 (* (factorial (- n 1)) n)))
 
 このプログラムのことを機械と考えて、その機械には減算・乗算・等価テストという部品があり、
 また切り替えスイッチと別の階乗機械が入っているというように考えることもできます
@@ -13184,11 +13147,11 @@ Lispの式として明示的に評価する能力をユーザに与えるため�
 その環境について式を評価する基本手続きの`eval`を提供しています。
 [^225] このため、
 
-(eval ’(\* 5 5) user-initial-environment)
+(eval ’(* 5 5) user-initial-environment)
 
 と
 
-(eval (cons ’\* (list 5 5)) user-initial-environment)
+(eval (cons ’* (list 5 5)) user-initial-environment)
 
 は、両方とも25を返します。 [^226]
 
@@ -13220,8 +13183,8 @@ Lispの式として明示的に評価する能力をユーザに与えるため�
 
 (define (f x) (define (even? n) (if (= n 0) true (odd? (- n 1))))
 (define (odd? n) (if (= n 0) false (even? (- n 1))))
- $ {\color{SchemeDark}}\langle $  *rest of body of
-`f`*  $ {\color{SchemeDark}}\rangle $ )
+   *rest of body of
+`f`*   )
 
 ここでの意図は、手続き`even?`の本体に含まれる名前`odd?`が、
 `even?`の後に定義されている手続き`odd?`を参照するようにするということです。
@@ -13250,22 +13213,22 @@ Lispの式として明示的に評価する能力をユーザに与えるため�
 されることになります。例えば、以下の手続きは
 
 (lambda
- $ {\color{SchemeDark}}\langle $  *vars*  $ {\color{SchemeDark}}\rangle $ 
+   *vars*   
 (define u
- $ {\color{SchemeDark}}\langle $  *e1*  $ {\color{SchemeDark}}\rangle $ )
+   *e1*   )
 (define v
- $ {\color{SchemeDark}}\langle $  *e2*  $ {\color{SchemeDark}}\rangle $ )
- $ {\color{SchemeDark}}\langle $  *e3*  $ {\color{SchemeDark}}\rangle $ )
+   *e2*   )
+   *e3*   )
 
 以下のように変形されます。
 
 (lambda
- $ {\color{SchemeDark}}\langle $  *vars*  $ {\color{SchemeDark}}\rangle $ 
-(let ((u ’\*unassigned\*) (v ’\*unassigned\*)) (set! u
- $ {\color{SchemeDark}}\langle $  *e1*  $ {\color{SchemeDark}}\rangle $ )
+   *vars*   
+(let ((u ’*unassigned*) (v ’*unassigned*)) (set! u
+   *e1*   )
 (set! v
- $ {\color{SchemeDark}}\langle $  *e2*  $ {\color{SchemeDark}}\rangle $ )
- $ {\color{SchemeDark}}\langle $  *e3*  $ {\color{SchemeDark}}\rangle $ ))
+   *e2*   )
+   *e3*   ))
 
 ここで、`*unassigned*`は特別な記号で、未割り当ての変数の値を使おうとしたら
 エラーを発生させるものです。
@@ -13288,7 +13251,7 @@ Lispの式として明示的に評価する能力をユーザに与えるため�
 >     (参照)に組み込め。どちらに組み込むのがよいだろうか。また、それはなぜか。
 >
 > **\[練習問題 4.17\]練習問題 4.17:**
-> 本文の手続き中の式$ \langle $*e3*$ \kern0.1em\rangle $を評価しているときに有効である
+> 本文の手続き中の式*e3*を評価しているときに有効である
 > 環境の図を描き、定義が逐次的に解釈される場合と定義を上記のように掃き出す場合とでそれぞれ
 > どのようになるか比較せよ。変形したプログラムでは、なぜフレームがひとつ余分にあるのだろうか。
 > 環境構造のこの違いが正しいプログラムのふるまいには決して影響を及ぼさない理由を説明せよ。
@@ -13299,13 +13262,13 @@ Lispの式として明示的に評価する能力をユーザに与えるため�
 > 定義を掃き出す別の戦略として、本文中の例を以下のように変形するものを考える。
 >
 > (lambda
->  $ {\color{SchemeDark}}\langle $  *vars*  $ {\color{SchemeDark}}\rangle $ 
-> (let ((u ’\*unassigned\*) (v ’\*unassigned\*)) (let ((a
->  $ {\color{SchemeDark}}\langle $  *e1*  $ {\color{SchemeDark}}\rangle $ )
+>    *vars*   
+> (let ((u ’*unassigned*) (v ’*unassigned*)) (let ((a
+>    *e1*   )
 > (b
->  $ {\color{SchemeDark}}\langle $  *e2*  $ {\color{SchemeDark}}\rangle $ ))
+>    *e2*   ))
 > (set! u a) (set! v b))
->  $ {\color{SchemeDark}}\langle $  *e3*  $ {\color{SchemeDark}}\rangle $ ))
+>    *e3*   ))
 >
 > ここで、`a`,
 > `b`はインタプリタの作成した新しい変数名を表現しているものとする。
@@ -13346,24 +13309,24 @@ Lispの式として明示的に評価する能力をユーザに与えるため�
 >
 > (define (f x) (letrec ((even? (lambda (n) (if (= n 0) true (odd? (- n
 > 1))))) (odd? (lambda (n) (if (= n 0) false (even? (- n 1))))))
->  $ {\color{SchemeDark}}\langle $  *`f`の本体の残り*  $ {\color{SchemeDark}}\rangle $ ))
+>    *`f`の本体の残り*   ))
 >
 > `letrec`式は以下の形式を持つ。
 >
 > (letrec
-> (( $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}var_1 $  $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}exp_1 $  $ {\color{SchemeDark}}\rangle $ )
+> ((   $ {\color{SchemeDark}}var_1 $   
+>    $ {\color{SchemeDark}}exp_1 $   )
 >  $ \dots $ 
-> ( $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}var_n $  $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}exp_n $  $ {\color{SchemeDark}}\rangle $ ))
->  $ {\color{SchemeDark}}\langle $  *body*  $ {\color{SchemeDark}}\rangle $ )
+> (   $ {\color{SchemeDark}}var_n $   
+>    $ {\color{SchemeDark}}exp_n $   ))
+>    *body*   )
 >
-> `letrec`式は`let`の亜種で、変数$ \langle $$ var_k $$ \kern0.08em\rangle $に
-> 初期値を与える式$ \langle $$ exp_k $$ \kern0.08em\rangle $は、すべての`letrec`の束縛を
+> `letrec`式は`let`の亜種で、変数$ var_k $に
+> 初期値を与える式$ exp_k $は、すべての`letrec`の束縛を
 > 含む環境の中で評価される。このことによって、上の例での`even?`と`odd?`の相互再帰や、
 > 以下のように10の階乗を評価する場合のように、束縛内での再帰が使えるようになる。
 >
-> (letrec ((fact (lambda (n) (if (= n 1) 1 (\* n (fact (- n 1)))))))
+> (letrec ((fact (lambda (n) (if (= n 1) 1 (* n (fact (- n 1)))))))
 > (fact 10))
 >
 > a.  `letrec`を派生式として実装せよ。上の本文やで示したように、
@@ -13374,7 +13337,7 @@ Lispの式として明示的に評価する能力をユーザに与えるため�
 >     Reasonerは、内部定義について考えるうちに混乱してしまった。手続きの中で`define`を
 >     使いたくないなら`let`を使えばいいじゃないかというのが彼の考えだ。
 >     この練習問題で定義した`f`について、式`(f 5)`の評価中に
->     $ \langle $*`f`の本体の残り*$ \kern0.08em\rangle $が評価される環境を示した
+>     *`f`の本体の残り*が評価される環境を示した
 >     環境図を描き、彼の考えの穴を示せ。同じ式の評価で、`f`の定義中の`letrec`の代わりに
 >     `let`が使われている場合の環境図も書け。
 >
@@ -13385,7 +13348,7 @@ Lispの式として明示的に評価する能力をユーザに与えるため�
 > 再帰的な階乗手続きを適用することによって10の階乗を求めている。 [^231]
 >
 > ((lambda (n) ((lambda (fact) (fact fact n)) (lambda (ft k) (if (= k 1)
-> 1 (\* k (ft ft (- k 1))))))) 10)
+> 1 (* k (ft ft (- k 1))))))) 10)
 >
 > a.  これが実際に階乗を計算することを(式を評価して)確認せよ。
 >     フィボナッチ数を計算する同様の式を考えよ。
@@ -13399,13 +13362,13 @@ Lispの式として明示的に評価する能力をユーザに与えるため�
 >
 >     (define (f x) ((lambda (even? odd?) (even? even? odd? x)) (lambda
 >     (ev? od? n) (if (= n 0) true (od?
->      $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
->      $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
->      $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ )))
+>       ??  
+>       ??  
+>       ??  )))
 >     (lambda (ev? od? n) (if (= n 0) false (ev?
->      $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
->      $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
->      $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ )))))
+>       ??  
+>       ??  
+>       ??  )))))
 >
 ### 構文解析を実行から分離する {#4.1.7節}
 
@@ -13414,7 +13377,7 @@ Lispの式として明示的に評価する能力をユーザに与えるため�
 何回も行われてしまいます。例えば、次の`factorial`の定義を使って`(factorial 4)`を
 評価することを考えてみましょう。
 
-(define (factorial n) (if (= n 1) 1 (\* (factorial (- n 1)) n)))
+(define (factorial n) (if (= n 1) 1 (* (factorial (- n 1)) n)))
 
 `factorial`が呼ばれるたびに、評価器は本体が`if`式であることを判断し、
 述語を取り出す必要があります。述語を評価して値によってディスパッチを行うのはその後になります。
@@ -13621,7 +13584,7 @@ exceptional-value usual-value))
 > `unless`を(通常の適用順序Schemeで)上で示したように定義し、それから`factorial`を
 > `unless`を使って以下のように定義するとする。
 >
-> (define (factorial n) (unless (= n 1) (\* n (factorial (- n 1))) 1))
+> (define (factorial n) (unless (= n 1) (* n (factorial (- n 1))) 1))
 >
 > `(factorial 5)`を評価すると何が起こるだろうか。この定義は正規順序言語でも動くだろうか。
 
@@ -13775,11 +13738,11 @@ value:*   *1* 
 >
 > (define w (id (id 10)))  *;;; L-Eval input:*  count  *;;; L-Eval
 > value:* 
->  $ {\color{SchemeDark}}\langle $  *response*  $ {\color{SchemeDark}}\rangle $ 
+>    *response*   
 >  *;;; L-Eval input:*  w  *;;; L-Eval value:* 
->  $ {\color{SchemeDark}}\langle $  *response*  $ {\color{SchemeDark}}\rangle $ 
+>    *response*   
 >  *;;; L-Eval input:*  count  *;;; L-Eval value:* 
->  $ {\color{SchemeDark}}\langle $  *response*  $ {\color{SchemeDark}}\rangle $ 
+>    *response*   
 
 > **\[練習問題 4.28\]練習問題 4.28:**
 > `eval`は、演算子を`apply`に渡す前に、`eval`ではなく`actual/value`を使って
@@ -13791,11 +13754,11 @@ value:*   *1* 
 > また、以下の対話について考えよ。この対話の中では、`id`手続きの定義は
 > と同じで、`count`は0から始める。
 >
-> (define (square x) (\* x x))  *;;; L-Eval input:*  (square (id 10))
+> (define (square x) (* x x))  *;;; L-Eval input:*  (square (id 10))
 >  *;;; L-Eval value:* 
->  $ {\color{SchemeDark}}\langle $  *response*  $ {\color{SchemeDark}}\rangle $ 
+>    *response*   
 >  *;;; L-Eval input:*  count  *;;; L-Eval value:* 
->  $ {\color{SchemeDark}}\langle $  *response*  $ {\color{SchemeDark}}\rangle $ 
+>    *response*   
 >
 > 評価器がメモ化されている場合とメモ化されていない場合の両方について、応答を示せ。
 
@@ -13894,7 +13857,7 @@ q) p))) (define (cdr z) (z (lambda (p q) q)))
 (define (list-ref items n) (if (= n 0) (car items) (list-ref (cdr items)
 (- n 1)))) (define (map proc items) (if (null? items) ’() (cons (proc
 (car items)) (map proc (cdr items))))) (define (scale-list items factor)
-(map (lambda (x) (\* x factor)) items)) (define (add-lists list1 list2)
+(map (lambda (x) (* x factor)) items)) (define (add-lists list1 list2)
 (cond ((null? list1) list2) ((null? list2) list1) (else (cons (+ (car
 list1) (car list2)) (add-lists (cdr list1) (cdr list2)))))) (define ones
 (cons 1 ones)) (define integers (cons 1 (add-lists ones integers)))
@@ -14011,12 +13974,12 @@ Schemeを拡張して非決定性をサポートするようにするために�
 導入します。[^247]
 
 (amb
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}e_1 $  $ {\color{SchemeDark}}\rangle $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}e_2 $  $ {\color{SchemeDark}}\rangle $ 
+   $ {\color{SchemeDark}}e_1 $   
+   $ {\color{SchemeDark}}e_2 $   
  $ \dots $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}e_n $  $ {\color{SchemeDark}}\rangle $ )
+   $ {\color{SchemeDark}}e_n $   )
 
-この式は、$ n $個の式$ \langle $$ e_i $$ \kern0.08em\rangle $のうちひとつの値を
+この式は、$ n $個の式$ e_i $のうちひとつの値を
 “曖昧に”返します。例えば、次の式は
 
 (list (amb 1 2 3) (amb ’a ’b))
@@ -14112,8 +14075,8 @@ Starting a new problem*   *;;; Amb-Eval value:*   *(30 11)* 
 >
 > (define (a-pythagorean-triple-between low high) (let ((i
 > (an-integer-between low high))) (let ((j (an-integer-between i high)))
-> (let ((k (an-integer-between j high))) (require (= (+ (\* i i) (\* j
-> j)) (\* k k))) (list i j k)))))
+> (let ((k (an-integer-between j high))) (require (= (+ (* i i) (* j
+> j)) (* k k))) (list i j k)))))
 
 > **\[練習問題 4.36\]練習問題 4.36:**
 > では、探索対象の整数の大きさに上限を設けることなく“すべての”
@@ -14129,8 +14092,8 @@ Starting a new problem*   *;;; Amb-Eval value:*   *(30 11)* 
 > (ヒント：探索すべき可能性の数を考えよ)
 >
 > (define (a-pythagorean-triple-between low high) (let ((i
-> (an-integer-between low high)) (hsq (\* high high))) (let ((j
-> (an-integer-between i high))) (let ((ksq (+ (\* i i) (\* j j))))
+> (an-integer-between low high)) (hsq (* high high))) (let ((j
+> (an-integer-between i high))) (let ((ksq (+ (* i i) (* j j))))
 > (require (&gt;= hsq ksq)) (let ((k (sqrt ksq))) (require (integer? k))
 > (list i j k))))))
 
@@ -14272,16 +14235,16 @@ verbs)))
 その単語を`*unparsed*`から削除し、単語とその品詞(リストの先頭にあります)と一緒に返します。
 [^255]
 
-(define (parse-word word-list) (require (not (null? \*unparsed\*)))
-(require (memq (car \*unparsed\*) (cdr word-list))) (let ((found-word
-(car \*unparsed\*))) (set! \*unparsed\* (cdr \*unparsed\*)) (list (car
+(define (parse-word word-list) (require (not (null? *unparsed*)))
+(require (memq (car *unparsed*) (cdr word-list))) (let ((found-word
+(car *unparsed*))) (set! *unparsed* (cdr *unparsed*)) (list (car
 word-list) found-word)))
 
 解析を始めるには、`*unparsed*`を入力全体に設定し、文の解析を試み、残っているものがないことを
 チェックするだけで大丈夫です。
 
-(define \*unparsed\* ’()) (define (parse input) (set! \*unparsed\*
-input) (let ((sent (parse-sentence))) (require (null? \*unparsed\*))
+(define *unparsed* ’()) (define (parse input) (set! *unparsed*
+input) (let ((sent (parse-sentence))) (require (null? *unparsed*))
 sent))
 
 これで、構文解析器を試し、先ほどの簡単なテスト文に対してうまく動くか確認できます。
@@ -14493,7 +14456,7 @@ continuation*)が呼ばれます。
 例えば、以下を実行すると、
 
 (ambeval
- $ {\color{SchemeDark}}\langle $  *exp*  $ {\color{SchemeDark}}\rangle $ 
+   *exp*   
 the-global-environment (lambda (value fail) value) (lambda () ’failed))
 
 与えられた式の評価を試み、式の値(評価が成功した場合)か記号`failed`(評価が失敗した場合)の
@@ -14572,8 +14535,8 @@ rest-procs)))) (let ((procs (map analyze exps))) (if (null? procs)
 あります。 [^261]
 
 これは、新しい値を変数に代入して先に進む前に、古い値を保存する成功継続
-(下のコメント“\*1\*”の箇所)を`vproc`に渡すことによって実現します。
-代入する値とともに渡された失敗継続(下のコメント“\*2\*”の箇所)は、失敗を継続する前に、
+(下のコメント“*1*”の箇所)を`vproc`に渡すことによって実現します。
+代入する値とともに渡された失敗継続(下のコメント“*2*”の箇所)は、失敗を継続する前に、
 変数の古い値を復元します。つまり、成功する代入は、それに続く失敗に割り込む失敗継続を提供するという
 ことです。`fail2`を呼んでいたはずの失敗はこの手続きを代わりに呼び、実際に`fail2`を呼ぶ
 前に代入を取り消します。
@@ -14724,8 +14687,8 @@ problem”) (driver-loop))))
 > (define (analyze-require exp) (let ((pproc (analyze (require-predicate
 > exp)))) (lambda (env succeed fail) (pproc env (lambda (pred-value
 > fail2) (if
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
+>   ??  
+>   ??  
 > (succeed ’ok fail2))) fail))))
 
 論理プログラミング {#4.4節}
@@ -15028,14 +14991,14 @@ programmer)) (address (Fect Cy D) (Cambridge (Ames Street) 3)))
 一般的に、
 
 (and
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}query_1 $  $ {\color{SchemeDark}}\rangle $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}query_2 $  $ {\color{SchemeDark}}\rangle $ 
+   $ {\color{SchemeDark}}query_1 $   
+   $ {\color{SchemeDark}}query_2 $   
  $ \dots $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}query_n $  $ {\color{SchemeDark}}\rangle $ )
+   $ {\color{SchemeDark}}query_n $   )
 
 この式が満たされるのは、パターン変数に対するすべての値の集合が、同時に
-$ \langle $$ query_1 $$ \rangle $ $ \dots $
-$ \langle $$ query_n $$ \rangle $を 満たすときです。
+$ query_1 $ $ \dots $
+$ query_n $を 満たすときです。
 
 単純クエリの場合と同じように、システムが複合クエリを処理する際には、パターン変数に対する代入で
 そのクエリを満たすものをすべて探し、それらの値によるクエリの具体化をすべて表示します。
@@ -15057,14 +15020,14 @@ Alyssa P))) (or (supervisor (Reasoner Louis) (Bitdiddle Ben))
 一般的に、
 
 (or
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}query_1 $  $ {\color{SchemeDark}}\rangle $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}query_2 $  $ {\color{SchemeDark}}\rangle $ 
+   $ {\color{SchemeDark}}query_1 $   
+   $ {\color{SchemeDark}}query_2 $   
  $ \dots $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}query_n $  $ {\color{SchemeDark}}\rangle $ )
+   $ {\color{SchemeDark}}query_n $   )
 
 この式が満たされるのは、パターン変数に対するすべての値の集合が、
-$ \langle $$ query_1 $$ \rangle $ $ \dots $
-$ \langle $$ query_n $$ \rangle $
+$ query_1 $ $ \dots $
+$ query_n $
 のうち少なくともひとつを満たすときです。
 
 複合クエリは、`not`によって作ることもできます。例えば、
@@ -15077,9 +15040,9 @@ Bitdiddleに監督され、コンピュータプログラマではないすべ�
 一般的に、
 
 (not
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}query_1 $  $ {\color{SchemeDark}}\rangle $ )
+   $ {\color{SchemeDark}}query_1 $   )
 
-この式が満たされるのは、パターン変数に対するすべての代入が$ \langle $$ query_1 $$ \rangle $
+この式が満たされるのは、パターン変数に対するすべての代入が$ query_1 $
 を満たさない場合に満たされます。 [^267]
 
 最後の組み合わせ形式は`lisp/value`と呼ばれるものです。`lisp/value`が
@@ -15087,14 +15050,14 @@ Bitdiddleに監督され、コンピュータプログラマではないすべ�
 要素を引数として適用するということを規定しています。一般的に、
 
 (lisp-value
- $ {\color{SchemeDark}}\langle $  *predicate*  $ {\color{SchemeDark}}\rangle $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}arg_1 $  $ {\color{SchemeDark}}\rangle $ 
+   *predicate*   
+   $ {\color{SchemeDark}}arg_1 $   
  $ \dots $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}arg_n $  $ {\color{SchemeDark}}\rangle $ )
+   $ {\color{SchemeDark}}arg_n $   )
 
-この式を満たすのは、$ \langle $*predicate*$ \rangle $が具体化された
-$ \langle $$ arg_1 $$ \rangle $ $ \dots $
-$ \langle $$ arg_n $$ \rangle $に適用された
+この式を満たすのは、*predicate*が具体化された
+$ arg_1 $ $ \dots $
+$ arg_n $に適用された
 ときの値が真になるようなパターン変数への代入です。例えば、給料が30,000ドルより多い人をすべて
 検索する場合は、次のように書くことができます。 [^268]
 
@@ -15135,11 +15098,11 @@ $ \langle $$ arg_n $$ \rangle $に適用された
 規則の一般形式は次のようになります。
 
 (rule
- $ {\color{SchemeDark}}\langle $  *conclusion*  $ {\color{SchemeDark}}\rangle $ 
- $ {\color{SchemeDark}}\langle $  *body*  $ {\color{SchemeDark}}\rangle $ )
+   *conclusion*   
+   *body*   )
 
-ここで、$ \langle $*conclusion*$ \rangle $はパターンで、
-$ \langle $*body*$ \rangle $は任意のクエリです。 [^270]
+ここで、*conclusion*はパターンで、
+*body*は任意のクエリです。 [^270]
 規則は、大きな(無限であることすらある)表明の集合、つまり規則の本体を満たす変数代入によって
 規則の結論を具体化したものすべてを表現するものとして考えることができます。
 単純クエリ(パターン)について記述したときには、具体化されたパターンがデータベースに
@@ -15207,7 +15170,7 @@ Bitdiddleの近くに住むコンピュータプログラマをすべて検索�
 >     その人の部門会議をすべて含むというものだ。Alyssaの規則に本体を補え。
 >
 >     (rule (meeting-time ?person ?day-and-time)
->      $ {\color{SchemeDark}}\langle $  *rule-body*  $ {\color{SchemeDark}}\rangle $ )
+>        *rule-body*   )
 >
 > c.  Alyssaは水曜の朝に職場に着き、その日にどんな会議があるか考えた。上記の規則を定義してあるとして、
 >     この検索を行うには、彼女はどのようなクエリを作るべきだろうか。
@@ -15792,9 +15755,9 @@ Bitdiddleは野球ファンではない、外で雨は降っていない、2 + 2
 > 一般的に、Benの新しいシステムは次の形式の式を受け入れる。
 >
 > (accumulation-function
->  $ {\color{SchemeDark}}\langle $  *variable*  $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $  *query
-> pattern*  $ {\color{SchemeDark}}\rangle $ )
+>    *variable*   
+>    *query
+> pattern*   )
 >
 > ここで、`accumulation/function`は`sum`,
 > `average`, `maximum`のようなものだ。
@@ -16450,9 +16413,9 @@ variable frame)) (define (extend variable value frame) (cons
 >
 >     (define (simple-stream-flatmap proc s) (simple-flatten (stream-map
 >     proc s))) (define (simple-flatten stream) (stream-map
->      $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $ 
+>       ??  
 >     (stream-filter
->      $ {\color{SchemeDark}}\langle $ ?? $ {\color{SchemeDark}}\rangle $  stream)))
+>       ??   stream)))
 >
 > b.  このような変更を加えると、クエリシステムのふるまいは変わるだろうか。
 >
@@ -16535,7 +16498,7 @@ variable frame)) (define (extend variable value frame) (cons
 > でLisp評価器を実装したとき、局所環境を使って別々の手続きの引数同士で
 > 名前が衝突しないようにする方法を学んだ。例えば、以下を評価する際に、
 >
-> (define (square x) (\* x x)) (define (sum-of-squares x y) (+ (square
+> (define (square x) (* x x)) (define (sum-of-squares x y) (+ (square
 > x) (square y))) (sum-of-squares 3 4)
 >
 > `square`の`x`と`sum/of/squares`の`x`が混同されることはない。
@@ -16691,7 +16654,7 @@ path*)
 > 設計せよ。このマシンに対するデータパス図とコントローラの図を描け。
 >
 > (define (factorial n) (define (iter product counter) (if (&gt; counter
-> n) product (iter (\* counter product) (+ counter 1)))) (iter 1 1))
+> n) product (iter (* counter product) (+ counter 1)))) (iter 1 1))
 
 ### レジスタマシンの記述言語 {#5.1.1節}
 
@@ -16988,7 +16951,7 @@ gcd-done)) (assign t (op rem) (reg a) (reg b)) (assign a (reg b))
 以下の再帰的な手法について考えてみましょう。これはで詳しく調べた
 ものです。
 
-(define (factorial n) (if (= n 1) 1 (\* (factorial (- n 1)) n)))
+(define (factorial n) (if (= n 1) 1 (* (factorial (- n 1)) n)))
 
 この手続きを見るとわかるように、$ n! $を計算するには$ (n - 1)! $を計算する必要があります。
 以下の手続きをモデル化したマシンでも、
@@ -17128,12 +17091,12 @@ $ (n - 1)! $を計算する部分問題、$ (n - 2)! $の部分問題$ \dots $�
 >
 > a.  再帰的指数計算
 >
->     (define (expt b n) (if (= n 0) 1 (\* b (expt b (- n 1)))))
+>     (define (expt b n) (if (= n 0) 1 (* b (expt b (- n 1)))))
 >
 > b.  反復的指数計算
 >
 >     (define (expt b n) (define (expt-iter counter product) (if (=
->     counter 0) product (expt-iter (- counter 1) (\* b product))))
+>     counter 0) product (expt-iter (- counter 1) (* b product))))
 >     (expt-iter n 1))
 >
 > **\[練習問題 5.5\]練習問題 5.5:**
@@ -17149,57 +17112,57 @@ $ (n - 1)! $を計算する部分問題、$ (n - 2)! $の部分問題$ \dots $�
 ### 命令まとめ {#5.1.5節}
 
 レジスタマシン言語のコントローラ命令は、以下のいずれかの形式をとります。
-$ \langle $$ input_i $$ \rangle $はそれぞれ
+$ input_i $はそれぞれ
 `(reg<register/name>)`か`(const <constant/value>)`のいずれかです。
 これらの命令はで導入したものです。
 
 (assign
- $ {\color{SchemeDark}}\langle $  *register-name*  $ {\color{SchemeDark}}\rangle $ 
+   *register-name*   
 (reg
- $ {\color{SchemeDark}}\langle $  *register-name*  $ {\color{SchemeDark}}\rangle $ ))
+   *register-name*   ))
 (assign
- $ {\color{SchemeDark}}\langle $  *register-name*  $ {\color{SchemeDark}}\rangle $ 
+   *register-name*   
 (const
- $ {\color{SchemeDark}}\langle $  *constant-value*  $ {\color{SchemeDark}}\rangle $ ))
+   *constant-value*   ))
 (assign
- $ {\color{SchemeDark}}\langle $  *register-name*  $ {\color{SchemeDark}}\rangle $ 
+   *register-name*   
 (op
- $ {\color{SchemeDark}}\langle $  *operation-name*  $ {\color{SchemeDark}}\rangle $ )
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}input_1 $  $ {\color{SchemeDark}}\rangle $ 
+   *operation-name*   )
+   $ {\color{SchemeDark}}input_1 $   
  $ \dots $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}input_n $  $ {\color{SchemeDark}}\rangle $ )
+   $ {\color{SchemeDark}}input_n $   )
 (perform (op
- $ {\color{SchemeDark}}\langle $  *operation-name*  $ {\color{SchemeDark}}\rangle $ )
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}input_1 $  $ {\color{SchemeDark}}\rangle $ 
+   *operation-name*   )
+   $ {\color{SchemeDark}}input_1 $   
  $ \dots $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}input_n $  $ {\color{SchemeDark}}\rangle $ )
+   $ {\color{SchemeDark}}input_n $   )
 (test (op
- $ {\color{SchemeDark}}\langle $  *operation-name*  $ {\color{SchemeDark}}\rangle $ )
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}input_1 $  $ {\color{SchemeDark}}\rangle $ 
+   *operation-name*   )
+   $ {\color{SchemeDark}}input_1 $   
  $ \dots $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}input_n $  $ {\color{SchemeDark}}\rangle $ )
+   $ {\color{SchemeDark}}input_n $   )
 (branch (label
- $ {\color{SchemeDark}}\langle $  *label-name*  $ {\color{SchemeDark}}\rangle $ ))
+   *label-name*   ))
 (goto (label
- $ {\color{SchemeDark}}\langle $  *label-name*  $ {\color{SchemeDark}}\rangle $ ))
+   *label-name*   ))
 
 ラベルを保存するのにレジスタを使うことについてはで導入しました。
 
 (assign
- $ {\color{SchemeDark}}\langle $  *register-name*  $ {\color{SchemeDark}}\rangle $ 
+   *register-name*   
 (label
- $ {\color{SchemeDark}}\langle $  *label-name*  $ {\color{SchemeDark}}\rangle $ ))
+   *label-name*   ))
 (goto (reg
- $ {\color{SchemeDark}}\langle $  *register-name*  $ {\color{SchemeDark}}\rangle $ ))
+   *register-name*   ))
 
 スタックを使う命令はで導入しました。
 
 (save
- $ {\color{SchemeDark}}\langle $  *register-name*  $ {\color{SchemeDark}}\rangle $ )
+   *register-name*   )
 (restore
- $ {\color{SchemeDark}}\langle $  *register-name*  $ {\color{SchemeDark}}\rangle $ )
+   *register-name*   )
 
-ここまでで見た$ \langle $*constant-value*$ \rangle $の種類は数値だけですが、
+ここまでで見た*constant-value*の種類は数値だけですが、
 これから先では、文字列、記号、リストも使うことになります。
 
 (const “abc”)    “abc”, (const abc)    abc, (const (a b c))    (a b c),
@@ -17219,28 +17182,28 @@ $ \langle $$ input_i $$ \rangle $はそれぞれ
 するためのものです。
 
 > (make-machine
->  $ {\color{SchemeDark}}\langle $  *register-names*  $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $  *operations*  $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $  *controller*  $ {\color{SchemeDark}}\rangle $ )
+>    *register-names*   
+>    *operations*   
+>    *controller*   )
 >
 > この手続きは、与えられたレジスタ、演算、コントローラを持つマシンのモデルを構築し、
 > それを返します。
 >
 > (set-register-contents!
->  $ {\color{SchemeDark}}\langle\kern0.08em $  *machine-model*  $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $  *register-name*  $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $  *value*  $ {\color{SchemeDark}}\rangle $ )
+>  $ {\color{SchemeDark}}\langle\kern0.08em $  *machine-model*   
+>    *register-name*   
+>    *value*   )
 >
 > この手続きは、与えられたマシンの(シミュレートした)レジスタに値を格納します。
 >
 > (get-register-contents
->  $ {\color{SchemeDark}}\langle\kern0.08em $  *machine-model*  $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $  *register-name*  $ {\color{SchemeDark}}\rangle $ )
+>  $ {\color{SchemeDark}}\langle\kern0.08em $  *machine-model*   
+>    *register-name*   )
 >
 > この手続きは、与えられたマシンの(シミュレートした)レジスタの中身を返します。
 >
 > (start
->  $ {\color{SchemeDark}}\langle\kern0.08em $  *machine-model*  $ {\color{SchemeDark}}\rangle $ )
+>  $ {\color{SchemeDark}}\langle\kern0.08em $  *machine-model*   )
 >
 > この手続きは、与えられたマシンの実行をシミュレートします。実行はコントローラ命令列の最初から
 > スタートし、命令列の末尾に着くと止まります。
@@ -17301,7 +17264,7 @@ gcd-done)) (assign t (op rem) (reg a) (reg b)) (assign a (reg b))
 レジスタは、でやったように、局所状態を持つ手続きとして表現します。
 手続き`make/register`はアクセスと変更が可能な値を持つレジスタを作成します。
 
-(define (make-register name) (let ((contents ’\*unassigned\*)) (define
+(define (make-register name) (let ((contents ’*unassigned*)) (define
 (dispatch message) (cond ((eq? message ’get) contents) ((eq? message
 ’set) (lambda (value) (set! contents value))) (else (error “Unknown
 request: REGISTER” message)))) dispatch))
@@ -17803,9 +17766,9 @@ max-depth))) (define (dispatch message) (cond ((eq? message ’push) push)
 > 実装することになっている。
 >
 > (set-breakpoint
->  $ {\color{SchemeDark}}\langle\kern0.08em $  *machine*  $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $  *label*  $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $  *n*  $ {\color{SchemeDark}}\rangle $ )
+>  $ {\color{SchemeDark}}\langle\kern0.08em $  *machine*   
+>    *label*   
+>    *n*   )
 >
 > この手続きは、与えられたラベルから$ n $番目の命令の直前にブレークポイントを設定するという
 > ものだ。例えば、
@@ -17820,19 +17783,19 @@ max-depth))) (define (dispatch message) (cond ((eq? message ’push) push)
 > しなければならない。
 >
 > (proceed-machine
->  $ {\color{SchemeDark}}\langle\kern0.08em $  *machine*  $ {\color{SchemeDark}}\rangle $ )
+>  $ {\color{SchemeDark}}\langle\kern0.08em $  *machine*   )
 >
 > さらに、以下のようにして特定のブレークポイントを削除したり、
 >
 > (cancel-breakpoint
->  $ {\color{SchemeDark}}\langle\kern0.08em $  *machine*  $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $  *label*  $ {\color{SchemeDark}}\rangle $ 
->  $ {\color{SchemeDark}}\langle $  *n*  $ {\color{SchemeDark}}\rangle $ )
+>  $ {\color{SchemeDark}}\langle\kern0.08em $  *machine*   
+>    *label*   
+>    *n*   )
 >
 > 以下のようにしてすべてのブレークポイントを削除したりできるようにしなければならない。
 >
 > (cancel-all-breakpoints
->  $ {\color{SchemeDark}}\langle\kern0.08em $  *machine*  $ {\color{SchemeDark}}\rangle $ )
+>  $ {\color{SchemeDark}}\langle\kern0.08em $  *machine*   )
 
 記憶領域の割り当てとガベージコレクション {#5.3節}
 ----------------------------------------
@@ -17956,46 +17919,46 @@ storage allocation*)
 例えば、以下の命令をサポートするレジスタマシンは、
 
 (assign
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}reg_1 $  $ {\color{SchemeDark}}\rangle $ 
+   $ {\color{SchemeDark}}reg_1 $   
 (op car) (reg
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}reg_2 $  $ {\color{SchemeDark}}\rangle $ ))
+   $ {\color{SchemeDark}}reg_2 $   ))
 (assign
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}reg_1 $  $ {\color{SchemeDark}}\rangle $ 
+   $ {\color{SchemeDark}}reg_1 $   
 (op cdr) (reg
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}reg_2 $  $ {\color{SchemeDark}}\rangle $ ))
+   $ {\color{SchemeDark}}reg_2 $   ))
 
 それぞれ次のように実装することによって作ることができます。
 
 (assign
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}reg_1 $  $ {\color{SchemeDark}}\rangle $ 
+   $ {\color{SchemeDark}}reg_1 $   
 (op vector-ref) (reg the-cars) (reg
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}reg_2 $  $ {\color{SchemeDark}}\rangle $ ))
+   $ {\color{SchemeDark}}reg_2 $   ))
 (assign
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}reg_1 $  $ {\color{SchemeDark}}\rangle $ 
+   $ {\color{SchemeDark}}reg_1 $   
 (op vector-ref) (reg the-cdrs) (reg
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}reg_2 $  $ {\color{SchemeDark}}\rangle $ ))
+   $ {\color{SchemeDark}}reg_2 $   ))
 
 以下の命令は、
 
 (perform (op set-car!) (reg
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}reg_1 $  $ {\color{SchemeDark}}\rangle $ )
+   $ {\color{SchemeDark}}reg_1 $   )
 (reg
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}reg_2 $  $ {\color{SchemeDark}}\rangle $ ))
+   $ {\color{SchemeDark}}reg_2 $   ))
 (perform (op set-cdr!) (reg
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}reg_1 $  $ {\color{SchemeDark}}\rangle $ )
+   $ {\color{SchemeDark}}reg_1 $   )
 (reg
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}reg_2 $  $ {\color{SchemeDark}}\rangle $ ))
+   $ {\color{SchemeDark}}reg_2 $   ))
 
 次のように実装できます。
 
 (perform (op vector-set!) (reg the-cars) (reg
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}reg_1 $  $ {\color{SchemeDark}}\rangle $ )
+   $ {\color{SchemeDark}}reg_1 $   )
 (reg
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}reg_2 $  $ {\color{SchemeDark}}\rangle $ ))
+   $ {\color{SchemeDark}}reg_2 $   ))
 (perform (op vector-set!) (reg the-cdrs) (reg
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}reg_1 $  $ {\color{SchemeDark}}\rangle $ )
+   $ {\color{SchemeDark}}reg_1 $   )
 (reg
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}reg_2 $  $ {\color{SchemeDark}}\rangle $ ))
+   $ {\color{SchemeDark}}reg_2 $   ))
 
 `cons`は、未使用のインデックスを割り当て、`the/cars`と`the/cdrs`の中の
 そのインデックスが指すベクタ位置に`cons`の二つの引数を格納することによって実行できます。
@@ -18004,28 +17967,28 @@ storage allocation*)
 と仮定します。 [^295] 例えば、次の命令は、
 
 (assign
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}reg_1 $  $ {\color{SchemeDark}}\rangle $ 
+   $ {\color{SchemeDark}}reg_1 $   
 (op cons) (reg
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}reg_2 $  $ {\color{SchemeDark}}\rangle $ )
+   $ {\color{SchemeDark}}reg_2 $   )
 (reg
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}reg_3 $  $ {\color{SchemeDark}}\rangle $ ))
+   $ {\color{SchemeDark}}reg_3 $   ))
 
 以下のようなベクタ命令の列として実装できます。 [^296]
 
 (perform (op vector-set!) (reg the-cars) (reg free) (reg
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}reg_2 $  $ {\color{SchemeDark}}\rangle $ ))
+   $ {\color{SchemeDark}}reg_2 $   ))
 (perform (op vector-set!) (reg the-cdrs) (reg free) (reg
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}reg_3 $  $ {\color{SchemeDark}}\rangle $ ))
+   $ {\color{SchemeDark}}reg_3 $   ))
 (assign
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}reg_1 $  $ {\color{SchemeDark}}\rangle $ 
+   $ {\color{SchemeDark}}reg_1 $   
 (reg free)) (assign free (op +) (reg free) (const 1))
 
 以下の`eq?`演算は、
 
 (op eq?) (reg
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}reg_1 $  $ {\color{SchemeDark}}\rangle $ )
+   $ {\color{SchemeDark}}reg_1 $   )
 (reg
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}reg_2 $  $ {\color{SchemeDark}}\rangle $ )
+   $ {\color{SchemeDark}}reg_2 $   )
 
 単純にレジスタのすべてのフィールドの等価性をテストします。`pair?`,
 `null?`, `symbol?`,
@@ -18039,13 +18002,13 @@ storage allocation*)
 そのため、`(save <reg>)`は次のように実装できます。
 
 (assign the-stack (op cons) (reg
- $ {\color{SchemeDark}}\langle $  *reg*  $ {\color{SchemeDark}}\rangle $ )
+   *reg*   )
 (reg the-stack))
 
 同じように、`(restore <reg>)`は次のように実装できます。
 
 (assign
- $ {\color{SchemeDark}}\langle $  *reg*  $ {\color{SchemeDark}}\rangle $ 
+   *reg*   
 (op car) (reg the-stack)) (assign the-stack (op cdr) (reg the-stack))
 
 また、`(perform (op initialize/stack))`は次のように実装できます。
@@ -18656,7 +18619,7 @@ unknown-procedure-type-error)) (goto (label signal-error)) signal-error
 
 (define eceval (make-machine ’(exp env val proc argl continue unev)
 eceval-operations ’(read-eval-print-loop
- $ {\color{SchemeDark}}\langle $  *ここまでで提示したマシンコントローラ全体*  $ {\color{SchemeDark}}\rangle $ 
+   *ここまでで提示したマシンコントローラ全体*   
 )))
 
 このほか、評価器が使う基本演算をシミュレートするためにScheme手続きを定義する必要があります。
@@ -18664,7 +18627,7 @@ eceval-operations ’(read-eval-print-loop
 を通して脚注で定義してきたいくつかの手続きがあります。
 
 (define eceval-operations (list (list ’self-evaluating? self-evaluating)
- $ {\color{SchemeDark}}\langle $  *明示制御評価器の全演算リスト*  $ {\color{SchemeDark}}\rangle $ ))
+   *明示制御評価器の全演算リスト*   ))
 
 これで、グローバル環境を初期化して評価器を実行できるようになります。
 
@@ -18694,7 +18657,7 @@ announce-output) (const “;;; EC-Eval value:”))  $ \dots $    
 
 こうすると、評価器とのやりとりは以下のようになります。
 
- *;;; EC-Eval input:*  (define (factorial n) (if (= n 1) 1 (\*
+ *;;; EC-Eval input:*  (define (factorial n) (if (= n 1) 1 (*
 (factorial (- n 1)) n)))  *(total-pushes = 3 maximum-depth = 3)*   *;;;
 EC-Eval value:*   *ok*   *;;; EC-Eval input:*  (factorial 5)
  *(total-pushes = 144 maximum-depth = 28)*   *;;; EC-Eval value:* 
@@ -18708,7 +18671,7 @@ EC-Eval value:*   *ok*   *;;; EC-Eval input:*  (factorial 5)
 > 評価器をスタートさせ、の反復`factorial`手続きを定義せよ。
 >
 > (define (factorial n) (define (iter product counter) (if (&gt; counter
-> n) product (iter (\* counter product) (+ counter 1)))) (iter 1 1))
+> n) product (iter (* counter product) (+ counter 1)))) (iter 1 1))
 >
 > いくつかの小さな$ n $の値を使ってこの手続きを実行せよ。それらの値の$ n! $を求めるのに
 > 必要となった最大スタック深度とプッシュ回数を記録せよ。
@@ -18722,7 +18685,7 @@ EC-Eval value:*   *ok*   *;;; EC-Eval input:*  (factorial 5)
 > **\[練習問題 5.27\]練習問題 5.27:**
 > との比較のために、階乗を再帰的に求める以下の手続きのふるまいを調査せよ。
 >
-> (define (factorial n) (if (= n 1) 1 (\* (factorial (- n 1)) n)))
+> (define (factorial n) (if (= n 1) 1 (* (factorial (- n 1)) n)))
 >
 > この手続きを監視機能つきのスタックを使って実行し、任意の$ n \ge 1 $に対して$ n! $を
 > 評価するのに使われるスタックの最大深度とプッシュの総数を$ n $の関数として決定せよ
@@ -18971,17 +18934,17 @@ sequence*)を返します。複合式に対するコード生成は、部分式�
 
 命令列を組み合わせる最も単純な手法は、`append/instruction/sequences`という手続きです。
 これは順に実行する任意の数の命令列を引数として取り、それらを連結し、組み合わせた列を返します。
-つまり、$ \langle $$ seq_1 $$ \rangle $と$ \langle $$ seq_2 $$ \rangle $が
+つまり、$ seq_1 $と$ seq_2 $が
 命令列であるとすると、以下を評価すると、
 
 (append-instruction-sequences
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}seq_1 $  $ {\color{SchemeDark}}\rangle $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}seq_2 $  $ {\color{SchemeDark}}\rangle $ )
+   $ {\color{SchemeDark}}seq_1 $   
+   $ {\color{SchemeDark}}seq_2 $   )
 
 次の列が生成されることになります。
 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}seq_1 $  $ {\color{SchemeDark}}\rangle $ 
- $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}seq_2 $  $ {\color{SchemeDark}}\rangle $ 
+   $ {\color{SchemeDark}}seq_1 $   
+   $ {\color{SchemeDark}}seq_2 $   
 
 レジスタを保存する必要があるかもしれないときは、コンパイラのコード生成器は`preserving`を
 使います。これは、命令列の組み立てを行うためのより込み入った手法です。`preserving`は三つの
@@ -18993,13 +18956,13 @@ sequence*)を返します。複合式に対するコード生成は、部分式�
 `preserving`は単純に連結した命令列を返します。
 よって、例えば
 
-(preserving (list  $ {\color{SchemeDark}}\langle reg_1 \rangle $ 
- $ {\color{SchemeDark}}\langle reg_2 \rangle $ )
- $ {\color{SchemeDark}}\langle seg_1 \rangle $ 
- $ {\color{SchemeDark}}\langle seg_2 \rangle $ )
+(preserving (list   
+  )
+  
+  )
 
-は、 $ \langle $$ seq_1 $$ \rangle $と$ \langle $$ seq_2 $$ \rangle $が
-$ \langle $$ reg_1 $$ \rangle $と$ \langle $$ reg_2 $$ \rangle $をどのように使うかに
+は、 $ seq_1 $と$ seq_2 $が
+$ reg_1 $と$ reg_2 $をどのように使うかに
 よって、以下の四つの命令列のうちのひとつを生成します。
 
 $$\vbox{
@@ -19172,13 +19135,13 @@ linkage) (let ((var (definition-variable exp)) (get-value-code (compile
 
 与えられたターゲットとリンク記述子でコンパイルされた`if`式のコードは以下の形式になります。
 
- $ {\color{SchemeDark}}\langle $  *ターゲット `val`,
+   *ターゲット `val`,
 リンク記述子 `next`
-での述語のコンパイル*  $ {\color{SchemeDark}}\rangle $  (test (op
+での述語のコンパイル*    (test (op
 false?) (reg val)) (branch (label false-branch)) true-branch
- $ {\color{SchemeDark}}\langle $  *与えられたターゲットと、与えられたリンク記述子または`after/if`での結果部のコンパイル*  $ {\color{SchemeDark}}\rangle $ 
+   *与えられたターゲットと、与えられたリンク記述子または`after/if`での結果部のコンパイル*   
 false-branch
- $ {\color{SchemeDark}}\langle $  *与えられたターゲットとリンク記述子での代替部のコンパイル*  $ {\color{SchemeDark}}\rangle $ 
+   *与えられたターゲットとリンク記述子での代替部のコンパイル*   
 after-if
 
 このコードを生成するには、述語、結果部、代替部をコンパイルし、その結果できるコードを、述語の結果を
@@ -19227,8 +19190,8 @@ target linkage))))
 `lambda`式は手続きを構築します。`lambda`式のオブジェクトコードは以下の形式に従う
 必要があります。
 
- $ {\color{SchemeDark}}\langle $  *手続きオブジェクトを構築しそれをターゲットレジスタに割り当てる*  $ {\color{SchemeDark}}\rangle $ 
- $ {\color{SchemeDark}}\langle $  *リンク*  $ {\color{SchemeDark}}\rangle $ 
+   *手続きオブジェクトを構築しそれをターゲットレジスタに割り当てる*   
+   *リンク*   
 
 `lambda`式をコンパイルするときには、手続き本体のコードも生成します。
 本体は手続き構築時に実行されるわけではないですが、これをオブジェクトコードの`lambda`式の
@@ -19237,10 +19200,10 @@ target linkage))))
 ジャンプするリンクを使って、手続き本体のコードを飛び越す必要があります。よって、オブジェクト
 コードは以下の形式になります。
 
- $ {\color{SchemeDark}}\langle $  *手続きオブジェクトを構築しそれをターゲットレジスタに割り当てる*  $ {\color{SchemeDark}}\rangle $ 
- $ {\color{SchemeDark}}\langle $  *与えられたリンクのコード*  $ {\color{SchemeDark}}\rangle $ 
+   *手続きオブジェクトを構築しそれをターゲットレジスタに割り当てる*   
+   *与えられたリンクのコード*   
  *または*   `(goto (label after/lambda))` 
- $ {\color{SchemeDark}}\langle $  *手続き本体をコンパイルしたもの*  $ {\color{SchemeDark}}\rangle $ 
+   *手続き本体をコンパイルしたもの*   
 after-lambda
 
 `compile/lambda`は、手続きオブジェクトに手続き本体のコードが続くものを構築するコードを
@@ -19282,11 +19245,11 @@ extend-environment) (const ,formals) (reg argl) (reg env))))
 コンパイル処理の核心部分は手続き適用のコンパイルです。与えられたターゲットとリンク記述子で
 コンパイルされた組み合わせのコードは以下の形式を持ちます。
 
- $ {\color{SchemeDark}}\langle $  *ターゲット `proc`,
+   *ターゲット `proc`,
 リンク
-`next`で演算子をコンパイル*  $ {\color{SchemeDark}}\rangle $ 
- $ {\color{SchemeDark}}\langle $  *被演算子を評価し、`argl`に引数リストを構築*  $ {\color{SchemeDark}}\rangle $ 
- $ {\color{SchemeDark}}\langle $  *与えられたターゲットとリンクで手続き呼び出しをコンパイル*  $ {\color{SchemeDark}}\rangle $ 
+`next`で演算子をコンパイル*   
+   *被演算子を評価し、`argl`に引数リストを構築*   
+   *与えられたターゲットとリンクで手続き呼び出しをコンパイル*   
 
 レジスタ`env`, `proc`,
 `argl`は、演算子と被演算子を評価する間に
@@ -19319,11 +19282,11 @@ linkage)))))
 一命令を無駄にする代わりに、最初のコード列に`argl`の初期値を構築させるようにします。
 そのため、引数リスト構築の一般的な形式は以下のようになります。
 
- $ {\color{SchemeDark}}\langle $  *`val`をターゲットとして最後の被演算子をコンパイル*  $ {\color{SchemeDark}}\rangle $ 
+   *`val`をターゲットとして最後の被演算子をコンパイル*   
 (assign argl (op list) (reg val))
- $ {\color{SchemeDark}}\langle $  *`val`をターゲットとして次の被演算子をコンパイル*  $ {\color{SchemeDark}}\rangle $ 
+   *`val`をターゲットとして次の被演算子をコンパイル*   
 (assign argl (op cons) (reg val) (reg argl))  $ \dots $ 
- $ {\color{SchemeDark}}\langle $  *`val`をターゲットとして最初の被演算子をコンパイル*  $ {\color{SchemeDark}}\rangle $ 
+   *`val`をターゲットとして最初の被演算子をコンパイル*   
 (assign argl (op cons) (reg val) (reg argl))
 
 `argl`は、(そこまでで集積した引数が失われないように)最初ひとつ以外の各被演算子の評価の前後で
@@ -19369,11 +19332,11 @@ code-for-next-arg (code-to-get-rest-args (cdr operand-codes))))))
 
 (test (op primitive-procedure?) (reg proc)) (branch (label
 primitive-branch)) compiled-branch
- $ {\color{SchemeDark}}\langle $  *与えられたターゲットと適切なリンクでコンパイル済み手続きを適用するコード*  $ {\color{SchemeDark}}\rangle $ 
+   *与えられたターゲットと適切なリンクでコンパイル済み手続きを適用するコード*   
 primitive-branch (assign
- $ {\color{SchemeDark}}\langle $  *target*  $ {\color{SchemeDark}}\rangle $ 
+   *target*   
 (op apply-primitive-procedure) (reg proc) (reg argl))
- $ {\color{SchemeDark}}\langle $  *リンク*  $ {\color{SchemeDark}}\rangle $ 
+   *リンク*   
 after-call
 
 コンパイル済み手続きの分岐(compiled-branch)は基本手続きの分岐(primitive-branch)をスキップする
@@ -19411,9 +19374,9 @@ argl))))))) after-call))))
 (assign continue (label proc-return)) (assign val (op
 compiled-procedure-entry) (reg proc)) (goto (reg val)) proc-return
 (assign
- $ {\color{SchemeDark}}\langle $  *target*  $ {\color{SchemeDark}}\rangle $ 
+   *target*   
 (reg val))    (goto (label
- $ {\color{SchemeDark}}\langle $  *リンク*  $ {\color{SchemeDark}}\rangle $ ))
+   *リンク*   ))
   
 
 リンクが`return`であれば以下のようになると期待できます。
@@ -19421,7 +19384,7 @@ compiled-procedure-entry) (reg proc)) (goto (reg val)) proc-return
 (save continue) (assign continue (label proc-return)) (assign val (op
 compiled-procedure-entry) (reg proc)) (goto (reg val)) proc-return
 (assign
- $ {\color{SchemeDark}}\langle $  *target*  $ {\color{SchemeDark}}\rangle $ 
+   *target*   
 (reg val))    (restore continue) (goto (reg continue))   
 
 このコードは、手続きが`proc/return`に戻るように`continue`を設定し、手続きの
@@ -19438,7 +19401,7 @@ compiled-procedure-entry) (reg proc)) (goto (reg val)) proc-return
 場所に戻る代わりに、呼び出し元のリンクで指定された場所に手続きが直接“戻る”ように
 `continue`を設定して、コードを単純化します。
 
- $ {\color{SchemeDark}}\langle $  *`continue`にリンクを設定*  $ {\color{SchemeDark}}\rangle $ 
+   *`continue`にリンクを設定*   
 (assign val (op compiled-procedure-entry) (reg proc)) (goto (reg val))
 
 リンクがラベルであれば、手続きがそのラベルに戻るように`continue`を設定します
@@ -19446,7 +19409,7 @@ compiled-procedure-entry) (reg proc)) (goto (reg val)) proc-return
 `(goto (label <linkage>))`と等価になります)。
 
 (assign continue (label
- $ {\color{SchemeDark}}\langle $  *リンク*  $ {\color{SchemeDark}}\rangle $ ))
+   *リンク*   ))
 (assign val (op compiled-procedure-entry) (reg proc)) (goto (reg val))
 
 もしリンクが`return`なら、`continue`を設定する必要はありません。`continue`には
@@ -19598,7 +19561,7 @@ seq2))))
 ここでは、`compile`を呼ぶことによって、再帰`factorial`手続きの定義をコンパイルすることに
 します。
 
-(compile ’(define (factorial n) (if (= n 1) 1 (\* (factorial (- n 1))
+(compile ’(define (factorial n) (if (= n 1) 1 (* (factorial (- n 1))
 n))) ’val ’next)
 
 `define`式の値はレジスタ`val`に入れるよう規定しています。`define`を実行した後に
@@ -19611,9 +19574,9 @@ n))) ’val ’next)
 `env`は定義を組み込むのに必要なので、値の計算の前後で保存されます。リンクは`next`なので、
 この場合リンクコードはありません。よって、コンパイル済みコードの骨組みは次のようになります。
 
- $ {\color{SchemeDark}}\langle $  *値を計算するコードで変更されるなら`env`を保存*  $ {\color{SchemeDark}}\rangle $ 
- $ {\color{SchemeDark}}\langle $  *ターゲット`val`、リンク`next`での定義の値のコンパイル*  $ {\color{SchemeDark}}\rangle $ 
- $ {\color{SchemeDark}}\langle $  *上で保存していたら`env`を復元*  $ {\color{SchemeDark}}\rangle $ 
+   *値を計算するコードで変更されるなら`env`を保存*   
+   *ターゲット`val`、リンク`next`での定義の値のコンパイル*   
+   *上で保存していたら`env`を復元*   
 (perform (op define-variable!) (const factorial) (reg val) (reg env))
 (assign val (const ok))
 
@@ -19633,7 +19596,7 @@ n))) ’val ’next)
 (label after-lambda1)) entry2 (assign env (op compiled-procedure-env)
 (reg proc)) (assign env (op extend-environment) (const (n)) (reg argl)
 (reg env))
- $ {\color{SchemeDark}}\langle $  *手続き本体のコンパイル*  $ {\color{SchemeDark}}\rangle $ 
+   *手続き本体のコンパイル*   
 after-lambda1 (perform (op define-variable!) (const factorial) (reg val)
 (reg env)) (assign val (const ok))
 
@@ -19641,7 +19604,7 @@ after-lambda1 (perform (op define-variable!) (const factorial) (reg val)
 (`compile/lambda/body`によって)コンパイルされます。今回の場合、命令列はひとつの
 `if`式からなります。
 
-(if (= n 1) 1 (\* (factorial (- n 1)) n))
+(if (= n 1) 1 (* (factorial (- n 1)) n))
 
 `compile/if`が生成するコードは、まず最初に述語を(ターゲットを`val`として)計算し、
 それからその結果を確認して、述語が偽であれば真の分岐をスキップします。`env`と`continue`は
@@ -19651,19 +19614,19 @@ after-lambda1 (perform (op define-variable!) (const factorial) (reg val)
 リンク`return`でコンパイルされます(つまり、条件文の値が手続きの値となるということです。
 条件文の値はいずれかの分岐で計算される値です)。
 
- $ {\color{SchemeDark}}\langle $  *述語により変更され、分岐により必要とされるのであれば
+   *述語により変更され、分岐により必要とされるのであれば
 `continue`,
-`env`を保存する*  $ {\color{SchemeDark}}\rangle $ 
- $ {\color{SchemeDark}}\langle $  *ターゲット`val`,
-リンク`next`での述語のコンパイル*  $ {\color{SchemeDark}}\rangle $ 
- $ {\color{SchemeDark}}\langle $  *上で保存していれば`continue`,
-`env`を復元する*  $ {\color{SchemeDark}}\rangle $  (test
+`env`を保存する*   
+   *ターゲット`val`,
+リンク`next`での述語のコンパイル*   
+   *上で保存していれば`continue`,
+`env`を復元する*    (test
 (op false?) (reg val)) (branch (label false-branch4)) true-branch5
- $ {\color{SchemeDark}}\langle $  *ターゲット`val`,
-リンク`return`での真の分岐のコンパイル*  $ {\color{SchemeDark}}\rangle $ 
+   *ターゲット`val`,
+リンク`return`での真の分岐のコンパイル*   
 false-branch4
- $ {\color{SchemeDark}}\langle $  *ターゲット`val`,
-リンク`return`での偽の分岐のコンパイル*  $ {\color{SchemeDark}}\rangle $ 
+   *ターゲット`val`,
+リンク`return`での偽の分岐のコンパイル*   
 after-if3
 
 述語`(= n 1)`は手続き呼び出しです。これは演算子(記号`=`)を検索し、その値を
@@ -19698,7 +19661,7 @@ apply-primitive-procedure) (reg proc) (reg argl)) after-call15
 > **\[練習問題 5.33\]練習問題 5.33:**
 > 次の階乗手続きの定義について考えよ。これは上に挙げたものとわずかに異なっている。
 >
-> (define (factorial-alt n) (if (= n 1) 1 (\* n (factorial-alt (- n
+> (define (factorial-alt n) (if (= n 1) 1 (* n (factorial-alt (- n
 > 1)))))
 >
 > この手続きをコンパイルし、その結果のコードを`factorial`に対して生成されるコードと比較せよ。
@@ -19708,7 +19671,7 @@ apply-primitive-procedure) (reg proc) (reg argl)) after-call15
 > 反復階乗手続きをコンパイルせよ。
 >
 > (define (factorial n) (define (iter product counter) (if (&gt; counter
-> n) product (iter (\* counter product) (+ counter 1)))) (iter 1 1))
+> n) product (iter (* counter product) (+ counter 1)))) (iter 1 1))
 >
 > 結果のコードに注釈をつけ、`factorial`の反復版と再帰版のコードで、片方がスタック空間を
 > 積み上げていきもう片方が一定のスタック空間で動作するという違いを生む、本質的な違いを示せ。
@@ -19731,7 +19694,7 @@ apply-primitive-procedure) (reg proc) (reg argl)) after-call15
 > proc) (reg argl)) after-call15    (restore env) (restore continue)
 > (test (op false?) (reg val)) (branch (label false-branch4))
 > true-branch5    (assign val (const 1)) (goto (reg continue))
-> false-branch4    (assign proc (op lookup-variable-value) (const \*)
+> false-branch4    (assign proc (op lookup-variable-value) (const *)
 > (reg env)) (save continue) (save proc)    (assign val (op
 > lookup-variable-value) (const n) (reg env)) (assign argl (op list)
 > (reg val)) (save argl)       (assign proc (op lookup-variable-value)
@@ -19867,13 +19830,13 @@ apply-primitive-procedure) (reg proc) (reg argl)) after-call15
 すると、高コストになりえます。例えば、以下の式によって返される手続きの適用で、式`(* x y z)`を
 評価する途中に`x`の値を検索するという問題について考えみましょう。
 
-(let ((x 3) (y 4)) (lambda (a b c d e) (let ((y (\* a b x)) (z (+ c d
-x))) (\* x y z))))
+(let ((x 3) (y 4)) (lambda (a b c d e) (let ((y (* a b x)) (z (+ c d
+x))) (* x y z))))
 
 `let`式は`lambda`組み合わせのシンタックスシュガーに過ぎないため、この式は以下と
 等価です。
 
-((lambda (x y) (lambda (a b c d e) ((lambda (y z) (\* x y z)) (\* a b x)
+((lambda (x y) (lambda (a b c d e) ((lambda (y z) (* x y z)) (* a b x)
 (+ c d x)))) 3 4)
 
 `lookup/variable/value`が`x`を検索するたびに、記号`x`が(一つ目のフレームでは)
@@ -19904,17 +19867,17 @@ number*)と、そのフレーム内で変数を
 そのようなコードを生成するためには、変数の参照をコンパイルしようとするとき、コンパイラはその変数の
 レキシカルアドレスを確定できなければなりません。プログラム中の変数のレキシカルアドレスは、
 それがコードのどこにあるのかに依存します。例えば、以下のプログラムで、式
-$ \langle $*e1*$ \kern0.08em\rangle $の中では、`x`アドレスは(2,
+*e1*の中では、`x`アドレスは(2,
 0)、つまり2フレーム
 後ろで、そのフレームの最初の変数ということになります。その位置では、`y`はアドレス(0,
 0)であり、 `c`はアドレス(1,
-2)です。式$ \langle $*e2*$ \kern0.09em\rangle $では、
+2)です。式*e2*では、
 `x`は(1, 0)、`y`は(1,
 1)、`c`は(0, 2)です。
 
 ((lambda (x y) (lambda (a b c d e) ((lambda (y z)
- $ {\color{SchemeDark}}\langle $  *e1*  $ {\color{SchemeDark}}\rangle $ )
- $ {\color{SchemeDark}}\langle $  *e2*  $ {\color{SchemeDark}}\rangle $ 
+   *e1*   )
+   *e2*   
 (+ c d x)))) 3 4)
 
 コンパイラがレキシカルアドレッシングを使うコードを生成するひとつの方法として、
@@ -19951,7 +19914,7 @@ $ \langle $*e1*$ \kern0.08em\rangle $の中では、`x`アドレスは(2,
 > **\[練習問題 5.41\]練習問題 5.41:**
 > 引数として変数とコンパイル時環境を取り、その環境に対するその変数のレキシカルアドレスを
 > 返す手続き`find/variable`を書け。例えば、上で示されたプログラムの断片では、
-> 式$ \langle $*e1*$ \kern0.08em\rangle $をコンパイルしている間の
+> 式*e1*をコンパイルしている間の
 > コンパイル時環境は`((y z) (a b c d e) (x y))`となる。`find/variable`は以下のような
 > 結果を返す。
 >
@@ -19987,7 +19950,7 @@ $ \langle $*e1*$ \kern0.08em\rangle $の中では、`x`アドレスは(2,
 > 基本手続きとしてオープンコード化するだろう。例えば、`x`と`y`の線形結合を求める次の手続きに
 > ついて考える。
 >
-> (lambda (+ \* a b x y) (+ (\* a x) (\* b y)))
+> (lambda (+ * a b x y) (+ (* a x) (* b y)))
 >
 > これは、例えば`+matrix`,
 > `*matrix`、4つの行列といった引数で呼ぶことができる。
@@ -20008,7 +19971,7 @@ $ \langle $*e1*$ \kern0.08em\rangle $の中では、`x`アドレスは(2,
 手続きだけでなく、コンパイル済み手続きも呼び出せるように評価器を修正します。こうすると、コンパイル
 済み手続きをマシンに入れて、評価器にそれを呼び出させることができます。
 
-(compile-and-go ’(define (factorial n) (if (= n 1) 1 (\* (factorial (- n
+(compile-and-go ’(define (factorial n) (if (= n 1) 1 (* (factorial (- n
 1)) n))))  *;;; EC-Eval value:*   *ok*   *;;; EC-Eval input:* 
 (factorial 5)  *;;; EC-Eval value:*   *120* 
 
@@ -20065,7 +20028,7 @@ eceval ’val instructions) (set-register-contents! eceval ’flag true)
 の終わりでやったようにスタック監視を設定すると、コンパイル済みコードの
 スタック使用を調査できます。
 
-(compile-and-go ’(define (factorial n) (if (= n 1) 1 (\* (factorial (- n
+(compile-and-go ’(define (factorial n) (if (= n 1) 1 (* (factorial (- n
 1)) n))))  *(total-pushes = 0 maximum-depth = 0)*   *;;; EC-Eval
 value:*   *ok*   *;;; EC-Eval input:*  (factorial 5)  *(total-pushes =
 31 maximum-depth = 14)*   *;;; EC-Eval value:*   *120* 
@@ -20158,7 +20121,7 @@ value:*   *ok*   *;;; EC-Eval input:*  (factorial 5)  *(total-pushes =
 > 拡張せよ。
 >
 >  *;;; EC-Eval input:*  (compile-and-run ’(define (factorial n) (if (=
-> n 1) 1 (\* (factorial (- n 1)) n))))  *;;; EC-Eval value:*   *ok* 
+> n 1) 1 (* (factorial (- n 1)) n))))  *;;; EC-Eval value:*   *ok* 
 >  *;;; EC-Eval input:*  (factorial 5)  *;;; EC-Eval value:*   *120* 
 
 > **\[練習問題 5.49\]練習問題 5.49:**
@@ -20815,7 +20778,7 @@ LaTeXに変換され、XeLaTeXによりにコンパイルされています。�
 
 [^13]: この本全体を通して、式の一般的な構文について記述する際には、山括弧で
     くくったイタリックの記号 —例えば、
-    $ \langle $*name*$ \kern0.08em\rangle $—を使って、
+    *name*—を使って、
     それらの式を実際に使うときに埋めなければならない“スロット”を表します。
 
 [^14]: もう少し一般化な言い方をすると、手続きの本体は式の列にもなりえます。
@@ -20846,12 +20809,12 @@ LaTeXに変換され、XeLaTeXによりにコンパイルされています。�
     これは、`(- x)`のようにひとつの被演算子とともに使われる場合、符号の反転を表します。
 
 [^19]: `if` と `cond`のちょっとした違いとして
-    `cond`の各節の$ \langle{e}\kern0.08em\rangle $は式の列であってもいいという
-    ことがあります。対応する$ \langle{p}\kern0.08em\rangle $が真になる場合、
-    $ \langle{e}\kern0.08em\rangle $内の式は順番に評価され、
+    `cond`の各節のは式の列であってもいいという
+    ことがあります。対応するが真になる場合、
+    内の式は順番に評価され、
     列の最後の式の値が`cond`の値として返されます。しかし、`if`式の中では
-    $ \langle $*consequent*$ \kern0.08em\rangle $と
-    $ \langle $*alternative*$ \kern0.08em\rangle $は単一の式でなければなりません。
+    *consequent*と
+    *alternative*は単一の式でなければなりません。
 
 [^20]: 宣言的記述と命令的記述は、数学とコンピュータサイエンスのように
     密接に関係しています。例えば、プログラムによって計算された答えが“正しい”か
@@ -20912,7 +20875,7 @@ LaTeXに変換され、XeLaTeXによりにコンパイルされています。�
     `fact/iter`の定義を隠すところです。
 
     (define (factorial n) (define (iter product counter) (if (&gt;
-    counter n) product (iter (\* counter product) (+ counter 1)))) (iter
+    counter n) product (iter (* counter product) (+ counter 1)))) (iter
     1 1))
 
     ここでは、一度に考えることを最小限にするために、そうすることを避けています。
@@ -21242,9 +21205,9 @@ LaTeXに変換され、XeLaTeXによりにコンパイルされています。�
     省略形を提供しています。例えば、
 
     (cadr
-     $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}ar\!g $  $ {\color{SchemeDark}}\rangle $ )
+       $ {\color{SchemeDark}}ar\!g $   )
     = (car (cdr
-     $ {\color{SchemeDark}}\langle $  $ {\color{SchemeDark}}arg $  $ {\color{SchemeDark}}\rangle $ ))
+       $ {\color{SchemeDark}}arg $   ))
 
     このような手続きの名前はすべて`c`で始まり`r`で終わります。間の`a`は
     `car`演算を表し、`d`は`cdr`演算を表し、名前の中での順番と同じ順番で
@@ -21265,9 +21228,9 @@ LaTeXに変換され、XeLaTeXによりにコンパイルされています。�
 [^77]: `lambda`を使って`f`と`g`を定義する場合、次のように書けます。
 
     (define f (lambda (x y . z)
-     $ {\color{SchemeDark}}\langle $  *body*  $ {\color{SchemeDark}}\rangle $ ))
+       *body*   ))
     (define g (lambda w
-     $ {\color{SchemeDark}}\langle $  *body*  $ {\color{SchemeDark}}\rangle $ ))
+       *body*   ))
 
 [^78]: \[Footnote 12\]
     Schemeは、ここで記述したものよりも汎用的な`map`手続きを標準で提供しています。
@@ -21276,7 +21239,7 @@ LaTeXに変換され、XeLaTeXによりにコンパイルされています。�
     適用していき、結果のリストを返します。例えば、次のようになります。
 
     (map + (list 1 2 3) (list 40 50 60) (list 700 800 900))  *(741 852
-    963)*  (map (lambda (x y) (+ x (\* 2 y))) (list 1 2 3) (list 4 5 6))
+    963)*  (map (lambda (x y) (+ x (* 2 y))) (list 1 2 3) (list 4 5 6))
      *(9 12 15)* 
 
 [^79]: `cond`の一番目と二番目の節は、この順番でなければいけません。空リストは
@@ -21631,7 +21594,7 @@ LaTeXに変換され、XeLaTeXによりにコンパイルされています。�
 
 [^131]: Schemeでは手続きの本体として式の連続が使えるので、すでに`begin`を暗黙的に
     プログラムの中で使っていることになります。また、`cond`式の各節の
-    $ \langle $*consequent*$ \kern0.08em\rangle $部分も、単一の式ではなく、式の連続に
+    *consequent*部分も、単一の式ではなく、式の連続に
     することができます。
 
 [^132]: プログラミング言語の業界用語では、変数`balance`は手続き`new/withdraw`の中に
@@ -21669,7 +21632,7 @@ LaTeXに変換され、XeLaTeXによりにコンパイルされています。�
     小数を渡されると小数を返します。
 
 [^137]: `set!`式に出てくる`balance`は置き換えません。`set!`内の
-    $ \langle $*name*$ \kern0.08em\rangle $は評価されていないからです。
+    *name*は評価されていないからです。
     これを置き換えるとすると、`(set! 25 (- 25 amount))`というおかしな結果になってしまいます。
 
 [^138]: ひとつの計算オブジェクトが二つ以上の名前によってアクセスされるという現象は、
@@ -21782,10 +21745,10 @@ LaTeXに変換され、XeLaTeXによりにコンパイルされています。�
     時刻というヘッダがあるので、追加のダミーヘッダ(テーブルで使った`*table*`記号のようなもの)
     の必要はありません。
 
-[^157]: この手続きの`if`式には$ \langle $*alternative*$ \kern0.08em\rangle $式が
+[^157]: この手続きの`if`式には*alternative*式が
     ありません。このような“片腕`if`文”は、二つの式から選ぶというのではなく、何かを
     するかどうかを決めるという場合に使います。`if`式は、述語が偽であり、かつ
-    $ \langle $*alternative*$ \kern0.08em\rangle $が存在しない場合、不定の値を返します。
+    *alternative*が存在しない場合、不定の値を返します。
 
 [^158]: こうすると、現在時刻は常に直近に処理したアクションの時刻になります。この時刻を
     予定表の先頭に格納することで、関連づけられた時間区分が削除されていてもその時刻が確実に
@@ -21959,7 +21922,7 @@ LaTeXに変換され、XeLaTeXによりにコンパイルされています。�
 [^184]: `stream/car`と`stream/cdr`は手続きとして定義できるのですが、
     `cons/stream`は特殊形式である必要があります。`cons/stream`が手続きだったとすると、
     私たちの評価モデルによると、`(cons/stream <a> <b>)`を評価すると自動的に
-    $ \langle $*b*$ \kern0.08em\rangle $が評価されることになります。これは避けたいところです。
+    *b*が評価されることになります。これは避けたいところです。
     同じ理由から、`delay`も特殊形式でなければなりません。しかし、`force`は通常の手続きでも
     大丈夫です。
 
