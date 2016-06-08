@@ -8,7 +8,7 @@ set -e
 
 if [ -f "./jsicp-original.tex" ]
 then
-  echo Pre formatting for converting latex to markdown.
+  echo Pre formating latex source before converting.
 else
   echo jsicp-original.tex: Not found.
   exit 1
