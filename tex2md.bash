@@ -13,3 +13,6 @@ cat jsicp.tex \
 | gsed 's/ \\[lr]angle //g' \
 | gsed 's/\~\\( \([^\]*\)\\)\~/\1/g' \
 | gsed 's/\~ \([^\~]*\)\~/\1/g' \
+| gsed 's/\\hbox{\([^}]*\)}/\1/g' \
+| gsed 's/\\[lr]angle//g' \
+| gsed 's/\\( \([^ ]*\) \\)/\1/g' \
