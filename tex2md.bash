@@ -22,7 +22,7 @@ cat jsicp-original.tex \
 | gsed 's/\\dark//g' \
 | gsed 's/\\sl //g' \
 | gsed 's/\\kern-\?[0-9.]*e[mx]//g' \
-| gsed 's/\\tt(/(/g' \
+| gsed 's/\\tt[()]/(/g' \
 | gsed 's/\\dots/ ... /g'  \
 | gsed 's/\\var{\([^}]*\)}/\1/g' \
 | gsed 's/\\langle{\([^}]*\)}\\rangle/\1/g' \
