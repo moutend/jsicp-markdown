@@ -23,7 +23,7 @@ cat jsicp-original.tex \
 | gsed 's/\\sl //g' \
 | gsed 's/\\kern-\?[0-9.]*e[mx]//g' \
 | gsed 's/\\tt(/(/g' \
-| gsed 's/\\dots/.../g'  \
+| gsed 's/\\dots/ ... /g'  \
 | gsed 's/\\var{\([^}]*\)}/\1/g' \
 | gsed 's/\\langle{\([^}]*\)}\\rangle/\1/g' \
 | gsed 's/ \\[lr]angle //g' \
@@ -42,6 +42,7 @@ pandoc -f latex -t markdown temporary.tex \
 | gsed 's/&gt;/>/g' \
 | gsed 's/&lt;/</g' \
 | gsed ':a;N;$!ba;s/\\\n/ /g' \
+| gsed 's/\\;//g' \
 | cat > jsicp-original.md
 
 echo Successfully done.
